@@ -1,9 +1,9 @@
-import { SidebarNav } from "@/components/layout/sidebar-nav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/hooks/use-auth";
+import { SidebarNav } from "../components/layout/sidebar-nav";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { useAuth } from "../hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { Package, DollarSign, ShoppingCart } from "lucide-react";
-import type { Product } from "@/types";
+import type { Product } from "../types";
 
 export default function Dashboard() {
   const { user } = useAuth();

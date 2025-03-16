@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { PricingTable } from "./pricing-table";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 import { Edit, Trash2, DollarSign, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "../../components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,16 +13,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "../../components/ui/alert-dialog";
 import { ProductForm } from "./product-form";
 import { SellProductForm } from "./sell-product-form";
-import { useAuth } from "@/hooks/use-auth";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import type { Product } from "@/types";
+import { useAuth } from "../../hooks/use-auth";
+import { apiRequest, queryClient } from "../../lib/queryClient";
+import { useToast } from "../../hooks/use-toast";
+import type { Product } from "../../types";
 import { useState } from "react";
 
 export function ProductCard({ product }: { product: Product }) {
+  console.log("ProductCard received product:", product); // Debugging
+  console.log("Product ID:", product?.id); // Check if ID is undefined
   const { user } = useAuth();
   const { toast } = useToast();
   const canSell = user?.role === "admin" || user?.role === "staff";
@@ -34,7 +36,9 @@ export function ProductCard({ product }: { product: Product }) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await apiRequest("DELETE", `/api/products/${product.id}`);
+      await apiRequest("POST", `/api/products/delete/${String(product.id)}`);
+      console.log("Delete button working "+ `/api/products/delete/${String(product.id)}`);
+	  console.log(product.id);
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       toast({
         title: "Product deleted",

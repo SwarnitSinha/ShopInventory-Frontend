@@ -1,8 +1,9 @@
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/use-auth";
+import { cn } from "../../lib/utils";
+import { useAuth } from "../../hooks/use-auth";
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 import { Home, Package, LogOut, DollarSign } from "lucide-react";
+import React from "react"
 
 const routes = [
   {
@@ -38,7 +39,7 @@ export function SidebarNav() {
         <div className="flex-1 overflow-auto py-2">
           <nav className="grid gap-1 px-2">
             {routes
-              .filter((route) => route.roles.includes(user?.role || ""))
+              // .filter((route) => route.roles.includes(user?.role || ""))
               .map((route) => {
                 const Icon = route.icon;
                 return (

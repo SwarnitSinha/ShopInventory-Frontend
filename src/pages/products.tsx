@@ -1,12 +1,12 @@
-import { SidebarNav } from "@/components/layout/sidebar-nav";
-import { Button } from "@/components/ui/button";
+import { SidebarNav } from "../components/layout/sidebar-nav";
+import { Button } from "../components/ui/button";
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { ProductCard } from "@/components/products/product-card";
-import { ProductForm } from "@/components/products/product-form";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
-import { useAuth } from "@/hooks/use-auth";
-import type { Product } from "@/types";
+import { ProductCard } from "../components/products/product-card";
+import { ProductForm } from "../components/products/product-form";
+import { Dialog, DialogTrigger, DialogContent } from "../components/ui/dialog";
+import { useAuth } from "../hooks/use-auth";
+import type { Product } from "../types";
 
 export default function Products() {
   const { user } = useAuth();

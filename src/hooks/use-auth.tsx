@@ -1,11 +1,11 @@
-import { createContext, ReactNode, useContext } from "react";
+import React, { createContext, ReactNode, useContext } from "react";
 import {
   useQuery,
   useMutation,
   UseMutationResult,
 } from "@tanstack/react-query";
 import { z } from "zod";
-import type { User } from "@/types";
+import type { User } from "../types";
 type InsertUser = z.infer<typeof insertUserSchema>;
 
 export const insertUserSchema = z.object({
@@ -14,37 +14,60 @@ export const insertUserSchema = z.object({
   role: z.enum(["admin", "staff", "technician"])
 });
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "./use-toast";
 
 type AuthContextType = {
-  user: SelectUser | null;
+  user: Omit<User,"password"> | null;
   isLoading: boolean;
   error: Error | null;
-  loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
+  loginMutation: UseMutationResult<Omit<User,"password">, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
-  registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
+  registerMutation: UseMutationResult<Omit<User,"password">, Error, InsertUser>;
 };
 
 type LoginData = Pick<InsertUser, "username" | "password">;
 
 export const AuthContext = createContext<AuthContextType | null>(null);
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+
+  const token = localStorage.getItem("token");
   const {
     data: user,
     error,
     isLoading,
-  } = useQuery<SelectUser | undefined, Error>({
+  } = useQuery<Omit<User,"password"> | undefined, Error>({
     queryKey: ["/api/user"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
+    queryFn: async() =>{
+      if (!token) return null;
+
+      const res = await fetch("http://localhost:5000/api/auth/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        localStorage.removeItem("token"); // Remove invalid token
+        return null;
+      }
+  
+      return res.json();
+      // getQueryFn({ on401: "returnNull" }),
+    } 
   });
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      const res = await apiRequest("POST", "http://localhost:5000/api/auth/login", credentials);
+      const data = await res.json();
+      
+      if (data.token) {
+        localStorage.setItem("token", data.token); // ✅ Save token for future requests
+      }
+
+      return await data.user;
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: (user: Omit<User,"password">) => {
       queryClient.setQueryData(["/api/user"], user);
     },
     onError: (error: Error) => {
@@ -58,10 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
+      const res = await apiRequest("POST", "/api/auth/register", credentials);
       return await res.json();
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: (user: Omit<User,"password">) => {
       queryClient.setQueryData(["/api/user"], user);
     },
     onError: (error: Error) => {
@@ -75,10 +98,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      await apiRequest("POST", "/api/auth/logout");
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
+      //clear localstorage
+      localStorage.clear(); 
     },
     onError: (error: Error) => {
       toast({

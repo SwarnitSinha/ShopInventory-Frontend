@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { insertSaleSchema, type InsertSale } from "@/schema";
-import type { Product, Sale } from "@/types";
-import { Button } from "@/components/ui/button";
+import { insertSaleSchema, type InsertSale } from "../../schema";
+import type { Product, Sale } from "../../types";
+import { Button } from "../../components/ui/button";
 import {
   Form,
   FormControl,
@@ -11,15 +11,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+} from "../../components/ui/form";
+import { Input } from "../../components/ui/input";
+import { useToast } from "../../hooks/use-toast";
+import { apiRequest, queryClient } from "../../lib/queryClient";
+import { DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Loader2, User } from "lucide-react";
 import { Invoice } from "./invoice";
+import { useAuth } from "../../hooks/use-auth"
+
 
 export function SellProductForm({ product, onClose }: { product: Product; onClose?: () => void }) {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [pricePerUnit, setPricePerUnit] = useState(product.regularPrice);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,16 +36,18 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
       quantity: 1,
       pricePerUnit: product.regularPrice,
       totalAmount: product.regularPrice,
+      createdBy: user?.username || "unknown",
     },
   });
 
   const updateTotalAmount = (quantity: number, price: number) => {
-    const total = Number((quantity * Number(price)).toFixed(2));
+    const total = (quantity * Number(price)).toFixed(2);
     form.setValue("totalAmount", total);
     return total;
   };
 
   async function onSubmit(data: InsertSale) {
+    console.log("On submit called " + data);
     if (data.quantity > product.quantity) {
       toast({
         title: "Error",
@@ -54,6 +59,8 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
 
     setIsSubmitting(true);
     try {
+      //change data and also include createdBy
+      data.createdBy = user?.id || "unknown";
       const response = await apiRequest("POST", "/api/sales", data);
       toast({
         title: "Sale completed",
@@ -84,7 +91,9 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
       <DialogHeader>
         <DialogTitle>Sell {product.name}</DialogTitle>
       </DialogHeader>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+      <form onSubmit={form.handleSubmit(onSubmit, (errors)=>{
+        console.log("Validation errors : ",errors);
+      })} className="space-y-4 py-4">
         <FormField
           control={form.control}
           name="buyerName"
@@ -113,7 +122,7 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
                     field.onChange(value);
-                    updateTotalAmount(value, pricePerUnit);
+                    updateTotalAmount(value, Number(pricePerUnit));
                   }}
                 />
               </FormControl>
@@ -133,10 +142,10 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
                   step="0.01"
                   {...field}
                   onChange={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
+                    const value = e.target.value;
                     field.onChange(value);
-                    setPricePerUnit(value);
-                    updateTotalAmount(form.getValues("quantity"), value);
+                    setPricePerUnit(String(value));
+                    updateTotalAmount(form.getValues("quantity"), Number(value) || 0);
                   }}
                 />
               </FormControl>
@@ -155,7 +164,7 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
               onClick={() => {
                 setPricePerUnit(product.regularPrice);
                 form.setValue("pricePerUnit", product.regularPrice);
-                updateTotalAmount(form.getValues("quantity"), product.regularPrice);
+                updateTotalAmount(form.getValues("quantity"), Number(product.regularPrice));
               }}
             >
               Regular (${Number(product.regularPrice).toFixed(2)})
@@ -167,7 +176,7 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
               onClick={() => {
                 setPricePerUnit(product.bulkPrice);
                 form.setValue("pricePerUnit", product.bulkPrice);
-                updateTotalAmount(form.getValues("quantity"), product.bulkPrice);
+                updateTotalAmount(form.getValues("quantity"), Number(product.bulkPrice));
               }}
             >
               Bulk (${Number(product.bulkPrice).toFixed(2)})

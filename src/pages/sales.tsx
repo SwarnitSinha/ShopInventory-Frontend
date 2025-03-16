@@ -1,4 +1,4 @@
-import { SidebarNav } from "@/components/layout/sidebar-nav";
+import { SidebarNav } from "../components/layout/sidebar-nav";
 import { useQuery } from "@tanstack/react-query";
 import {
   Table,
@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import type { Sale } from "@/types";
+} from "../components/ui/table";
+import type { Sale } from "../types";
 import { format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 
 export default function Sales() {
   const { data: sales } = useQuery<Sale[]>({

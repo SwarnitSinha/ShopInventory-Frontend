@@ -14,9 +14,11 @@ export const insertProductSchema = z.object({
 export const insertSaleSchema = z.object({
         productId: z.string().min(1, "Product ID is required"),
         buyerName: z.string().min(1, "Buyer name is required"),
+        createdBy: z.string().min(1, "Login is required"),
         quantity: z.number().min(1, "Quantity must be at least 1"),
-        pricePerUnit: z.number().min(0, "Price per unit must be positive"),
-        totalAmount: z.number().min(0, "Total amount must be positive"),
+        pricePerUnit: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
+        totalAmount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
+
 });
 
 export type InsertSale = z.infer<typeof insertSaleSchema>;

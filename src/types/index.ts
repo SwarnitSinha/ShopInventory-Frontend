@@ -15,15 +15,18 @@ export type User = {
 }
 
 export type Product = {
-        id: number;
+        id: string;
         name: string;
         description: string;
         imageUrl: string;
         quantity: number;
-        purchasePrice: number;
-        regularPrice: number;
-        bulkPrice: number;
+        purchasePrice: string;
+        regularPrice: string;
+        bulkPrice: string;
 }
+
+export type ProductFormData = Omit<Product, "id">; // 🔹 Excludes `id`
+
 
 export type Sale = {
         id: string;
