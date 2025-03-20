@@ -24,16 +24,23 @@ import { useToast } from "../../hooks/use-toast";
 import { apiRequest, queryClient } from "../../lib/queryClient";
 import { DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { Invoice } from "./invoice";
 import { useAuth } from "../../hooks/use-auth";
 import { Buyer } from "../../types";
 
-export function SellProductForm({ product, onClose }: { product: Product; onClose?: () => void }) {
+export function SellProductForm({
+  product,
+  sale,
+  onClose,
+  onSubmit,
+}: {
+  product: Product;
+  sale?: Sale; // Optional sale prop for prepopulating fields
+  onClose?: () => void;
+  onSubmit?: (data: InsertSale) => void; // Optional custom submit handler
+}) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [pricePerUnit, setPricePerUnit] = useState(product.regularPrice);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [completedSale, setCompletedSale] = useState<Sale | null>(null);
   const [buyers, setBuyers] = useState<Buyer[]>([]);
 
   // Fetch buyers from API
@@ -58,13 +65,13 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
     resolver: zodResolver(insertSaleSchema),
     defaultValues: {
       product: product.id,
-      buyer: "",
-      quantity: 1,
-      pricePerUnit: Number(product.regularPrice),
-      totalAmount: Number(product.regularPrice),
-      amountPaid: 0,
-      status: "due",
-      saleDate: new Date(), // Set today's date
+      buyer: sale?.buyer?.id || "", // Prepopulate buyer if sale exists
+      quantity: sale?.quantity || 1,
+      pricePerUnit: sale?.pricePerUnit || Number(product.regularPrice),
+      totalAmount: sale?.totalAmount || Number(product.regularPrice),
+      amountPaid: sale?.amountPaid || 0,
+      status: sale?.status || "due",
+      saleDate: sale?.saleDate ? new Date(sale.saleDate) : new Date(),
     },
   });
 
@@ -74,8 +81,9 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
     return total;
   };
 
-  async function onSubmit(data: InsertSale) {
-    console.log("On submit called", data);
+  async function handleSubmit(data: InsertSale) {
+    console.log("Form Submitted:", data);
+
     if (data.quantity > product.quantity) {
       toast({
         title: "Error",
@@ -90,15 +98,28 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
 
     setIsSubmitting(true);
     try {
-      const response = await apiRequest("POST", "/api/sales", data);
-      toast({
-        title: "Sale completed",
-        description: "The sale has been recorded successfully",
-      });
+      if (sale) {
+        // Update existing sale
+        await apiRequest("PATCH", `/api/sales/${sale.id}`, data);
+        toast({
+          title: "Sale updated",
+          description: "The sale has been updated successfully",
+        });
+      } else {
+        // Create new sale
+        await apiRequest("POST", "/api/sales", data);
+        toast({
+          title: "Sale completed",
+          description: "The sale has been recorded successfully",
+        });
+      }
+
       await queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       await queryClient.invalidateQueries({ queryKey: ["/api/sales"] });
-      const sale: Sale = await response.json();
-      setCompletedSale(sale);
+
+      if (onSubmit) {
+        onSubmit(data);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -107,49 +128,55 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
       });
     } finally {
       setIsSubmitting(false);
+      if (onClose) {
+        onClose();
+      }
     }
-  }
-
-  if (completedSale) {
-    return <Invoice sale={completedSale} product={product} />;
   }
 
   return (
     <Form {...form}>
       <DialogHeader>
-        <DialogTitle>Sell {product.name}</DialogTitle>
+        <DialogTitle>{sale ? `Update Sale` : `Sell ${product.name}`}</DialogTitle>
       </DialogHeader>
       <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
           console.log("Validation errors:", errors);
         })}
         className="space-y-4 py-4"
       >
         {/* Buyer Dropdown */}
         <FormField
-          control={form.control}
-          name="buyer"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Buyer</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a buyer" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {buyers.map((buyer) => (
-                    <SelectItem key={buyer.id} value={buyer.id}>
-                      {buyer.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+  control={form.control}
+  name="buyer"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Buyer</FormLabel>
+      <Select
+        onValueChange={(value) => {
+          field.onChange(value); // Update the form state
+        }}
+        value={field.value || ""} // Bind the current value to the dropdown
+      >
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a buyer">
+              {buyers.find((buyer) => buyer.id === field.value)?.name || "Select a buyer"}
+            </SelectValue>
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {buyers.map((buyer) => (
+            <SelectItem key={buyer.id} value={buyer.id}>
+              {buyer.name} {/* Display buyer name */}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
         {/* Quantity */}
         <FormField
@@ -167,7 +194,7 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
                     field.onChange(value);
-                    updateTotalAmount(value, Number(pricePerUnit));
+                    updateTotalAmount(value, Number(form.getValues("pricePerUnit")));
                   }}
                 />
               </FormControl>
@@ -188,7 +215,11 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
                   type="number"
                   step="0.01"
                   {...field}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value) || 0;
+                    field.onChange(value);
+                    updateTotalAmount(Number(form.getValues("quantity")), value);
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -196,23 +227,25 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
           )}
         />
 
-<FormField
-  control={form.control}
-  name="saleDate"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Sale Date</FormLabel>
-      <FormControl>
-        <Input
-          type="date"
-          value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""} // Convert Date to string
-          onChange={(e) => field.onChange(new Date(e.target.value))} // Convert string back to Date
+        {/* Sale Date */}
+        <FormField
+          control={form.control}
+          name="saleDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sale Date</FormLabel>
+              <FormControl>
+                <Input
+                  type="date"
+                  value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
+                  onChange={(e) => field.onChange(new Date(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+
         {/* Amount Paid */}
         <FormField
           control={form.control}
@@ -225,7 +258,7 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
                   type="number"
                   step="0.01"
                   {...field}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} // Parse as a number
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                 />
               </FormControl>
               <FormMessage />
@@ -242,8 +275,10 @@ export function SellProductForm({ product, onClose }: { product: Product; onClos
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing Sale...
+              {sale ? "Updating Sale..." : "Processing Sale..."}
             </>
+          ) : sale ? (
+            "Update Sale"
           ) : (
             "Complete Sale"
           )}

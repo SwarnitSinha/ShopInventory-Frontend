@@ -31,7 +31,7 @@ export type ProductFormData = Omit<Product, "id">; // 🔹 Excludes `id`
 export type Sale = {
         id: string;
         buyer: {
-          _id: string;
+          id: string;
           name: string;
           type: 'shopkeeper' | 'technician';
           town: string;
