@@ -9,6 +9,8 @@ import AuthPage from "./pages/auth-page";
 import Dashboard from "./pages/dashboard";
 import Products from "./pages/products";
 import Sales from "./pages/sales";
+import Buyers from "./pages/buyers";
+import Towns from "./pages/towns";
 import React from "react"
 
 function Router() {
@@ -18,6 +20,8 @@ function Router() {
       <ProtectedRoute path="/" component={Dashboard} />
       <ProtectedRoute path="/products" component={Products} />
       <ProtectedRoute path="/sales" component={Sales} />
+      <ProtectedRoute path="/buyers" component={Buyers} />
+      <ProtectedRoute path="/towns" component={Towns} />
       <Route component={NotFound} />
     </Switch>
   );

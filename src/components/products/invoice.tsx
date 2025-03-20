@@ -1,6 +1,6 @@
-import type { Sale } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import type { Sale } from "../../types";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import { Printer, Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -28,10 +28,10 @@ export function Invoice({ sale, product }: InvoiceProps) {
     <Card className="print:shadow-none">
       <CardHeader className="flex-row items-center justify-between print:!border-b">
         <CardTitle>Invoice</CardTitle>
-        <Button 
-          onClick={handlePrint} 
-          variant="outline" 
-          size="sm" 
+        <Button
+          onClick={handlePrint}
+          variant="outline"
+          size="sm"
           className="print:hidden"
           disabled={isPrinting}
         >
@@ -49,18 +49,23 @@ export function Invoice({ sale, product }: InvoiceProps) {
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Sale Details */}
         <div className="space-y-2">
           <h3 className="font-semibold">Sale Details</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
+          <span className="text-muted-foreground">Buyer Name:</span>
+          <span>{sale.buyer.name.toLocaleUpperCase()}</span>
             <span className="text-muted-foreground">Invoice Date:</span>
             <span>{new Date(sale.createdAt).toLocaleDateString()}</span>
-            <span className="text-muted-foreground">Invoice Time:</span>
-            <span>{new Date(sale.createdAt).toLocaleTimeString()}</span>
-            <span className="text-muted-foreground">Buyer Name:</span>
-            <span>{sale.buyerName}</span>
+            <span className="text-muted-foreground">Sale Date:</span>
+            <span>{new Date(sale.saleDate).toLocaleDateString()}</span>
+            
+            <span className="text-muted-foreground">Buyer Type:</span>
+            <span>{sale.buyer.type.toLocaleUpperCase()}</span>
           </div>
         </div>
 
+        {/* Product Details */}
         <div className="space-y-2">
           <h3 className="font-semibold">Product Details</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
@@ -75,10 +80,18 @@ export function Invoice({ sale, product }: InvoiceProps) {
           </div>
         </div>
 
-        <div className="border-t pt-4">
-          <div className="flex justify-between text-lg font-semibold">
-            <span>Total Amount:</span>
+        {/* Payment Details */}
+        <div className="space-y-2">
+          <h3 className="font-semibold">Payment Details</h3>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <span className="text-muted-foreground">Total Amount:</span>
             <span>${Number(sale.totalAmount).toFixed(2)}</span>
+            <span className="text-muted-foreground">Amount Paid:</span>
+            <span>${Number(sale.amountPaid).toFixed(2)}</span>
+            <span className="text-muted-foreground">Amount Due:</span>
+            <span>${(sale.totalAmount - sale.amountPaid).toFixed(2)}</span>
+            <span className="text-muted-foreground">Sale Status:</span>
+            <span>{sale.status === "completed" ? "Completed" : "Due"}</span>
           </div>
         </div>
       </CardContent>

@@ -5,9 +5,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { useAuth } from "@/hooks/use-auth";
-import type { Product } from "@/types";
+} from "../../components/ui/table";
+import { useAuth } from "../../hooks/use-auth";
+import type { Product } from "../../types";
 
 export function PricingTable({ product }: { product: Product }) {
   const { user } = useAuth();
@@ -22,11 +22,6 @@ export function PricingTable({ product }: { product: Product }) {
       type: "Bulk Price",
       price: product.bulkPrice,
       showTo: ["admin", "staff"],
-    },
-    {
-      type: "Purchase Price",
-      price: product.purchasePrice,
-      showTo: ["admin"],
     },
   ].filter((p) => p.showTo.includes(user?.role || ""));
 
