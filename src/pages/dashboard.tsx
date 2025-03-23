@@ -1,9 +1,10 @@
-import { SidebarNav } from "@/components/layout/sidebar-nav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/hooks/use-auth";
+import { SidebarNav } from "../components/layout/sidebar-nav";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { useAuth } from "../hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { Package, DollarSign, ShoppingCart } from "lucide-react";
-import type { Product } from "@/types";
+import type { Product } from "../types";
+import { Layout } from "../components/layout/layout";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -30,11 +31,13 @@ export default function Dashboard() {
   ];
 
   return (
+    <Layout>
     <div className="flex h-screen">
-      <SidebarNav />
       <main className="flex-1 overflow-auto bg-background">
-        <div className="h-14 border-b flex items-center px-4">
-          <h1 className="text-lg font-medium">Dashboard</h1>
+        <div className="h-14 border-b flex items-center justify-center relative">
+          <h1 className="text-lg font-medium absolute left-1/2 -translate-x-1/2 md:relative md:left-auto md:translate-x-0">
+          Dashboard
+          </h1>
         </div>
         
         <div className="p-6">
@@ -96,5 +99,6 @@ export default function Dashboard() {
         </div>
       </main>
     </div>
+    </Layout>
   );
 }
