@@ -6,13 +6,19 @@ import { useState } from "react";
 
 interface InvoiceProps {
   sale: Sale;
-  product: {
-    name: string;
-    description: string;
-  };
+  products: {
+    product: {
+      id: string;
+      name: string;
+      regularPrice: number;
+    };
+    quantity: number;
+    pricePerUnit: number;
+    totalAmount: number;
+  }[];
 }
 
-export function Invoice({ sale, product }: InvoiceProps) {
+export function Invoice({ sale, products }: InvoiceProps) {
   const [isPrinting, setIsPrinting] = useState(false);
 
   const handlePrint = async () => {
@@ -53,43 +59,58 @@ export function Invoice({ sale, product }: InvoiceProps) {
         <div className="space-y-2">
           <h3 className="font-semibold">Sale Details</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
-          <span className="text-muted-foreground">Buyer Name:</span>
-          <span>{sale.buyer.name.toLocaleUpperCase()}</span>
             <span className="text-muted-foreground">Invoice Date:</span>
             <span>{new Date(sale.createdAt).toLocaleDateString()}</span>
+            <span className="text-muted-foreground">Invoice Number:</span>
+            <span><b>{sale.invoiceNumber}</b></span>
+            <span className="text-muted-foreground">Buyer Name:</span>
+            <span><b>{sale.buyer.name.toLocaleUpperCase()}</b></span>
             <span className="text-muted-foreground">Sale Date:</span>
             <span>{new Date(sale.saleDate).toLocaleDateString()}</span>
-            
-            <span className="text-muted-foreground">Buyer Type:</span>
-            <span>{sale.buyer.type.toLocaleUpperCase()}</span>
           </div>
         </div>
 
-        {/* Product Details */}
-        <div className="space-y-2">
-          <h3 className="font-semibold">Product Details</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <span className="text-muted-foreground">Product Name:</span>
-            <span>{product.name}</span>
-            <span className="text-muted-foreground">Description:</span>
-            <span>{product.description}</span>
-            <span className="text-muted-foreground">Quantity:</span>
-            <span>{sale.quantity}</span>
-            <span className="text-muted-foreground">Price Per Unit:</span>
-            <span>${Number(sale.pricePerUnit).toFixed(2)}</span>
-          </div>
-        </div>
+        {/* Product Details Table */}
+<div className="space-y-4">
+  <h3 className="font-semibold">Product Details</h3>
+  <table className="w-full border-collapse border border-gray-300">
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="border border-gray-300 px-4 py-2 text-left">#</th>
+        <th className="border border-gray-300 px-4 py-2 text-left">Product Name</th>
+        <th className="border border-gray-300 px-4 py-2 text-right">Quantity</th>
+        <th className="border border-gray-300 px-4 py-2 text-right">Price Per Unit</th>
+        <th className="border border-gray-300 px-4 py-2 text-right">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {products.map((product, index) => (
+        <tr key={product.product.id} className="border border-gray-300">
+          <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+          <td className="border border-gray-300 px-4 py-2">{product.product.name}</td>
+          <td className="border border-gray-300 px-4 py-2 text-right">{product.quantity}</td>
+          <td className="border border-gray-300 px-4 py-2 text-right">
+            ₹{Number(product.pricePerUnit).toFixed(2)}
+          </td>
+          <td className="border border-gray-300 px-4 py-2 text-right">
+            ₹{Number(product.totalAmount).toFixed(2)}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
         {/* Payment Details */}
         <div className="space-y-2">
           <h3 className="font-semibold">Payment Details</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <span className="text-muted-foreground">Total Amount:</span>
-            <span>${Number(sale.totalAmount).toFixed(2)}</span>
+            <span>{"\u20B9"}{Number(sale.grandTotal).toLocaleString('en-IN')}</span>
             <span className="text-muted-foreground">Amount Paid:</span>
-            <span>${Number(sale.amountPaid).toFixed(2)}</span>
+            <span>{"\u20B9"}{Number(sale.amountPaid).toLocaleString('en-IN')}</span>
             <span className="text-muted-foreground">Amount Due:</span>
-            <span>${(sale.totalAmount - sale.amountPaid).toFixed(2)}</span>
+            <span>{"\u20B9"}{(sale.grandTotal - sale.amountPaid).toLocaleString('en-IN')}</span>
             <span className="text-muted-foreground">Sale Status:</span>
             <span>{sale.status === "completed" ? "Completed" : "Due"}</span>
           </div>

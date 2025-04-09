@@ -16,9 +16,10 @@ export type User = {
 
 export type Product = {
         id: string;
+        _id: string;
         name: string;
         description: string;
-        imageUrl: string;
+        imageUrl?: any;
         quantity: number;
         purchasePrice: string;
         regularPrice: string;
@@ -30,25 +31,29 @@ export type ProductFormData = Omit<Product, "id">; // 🔹 Excludes `id`
 
 export type Sale = {
         id: string;
+        _id: string;
+        invoiceNumber: string;
         buyer: {
           id: string;
+          _id: string;
           name: string;
           type: 'shopkeeper' | 'technician';
           town: string;
         };
-        product: {
-          _id: string;
-          name: string;
-          description: string;
-          quantity: number;
-          purchasePrice: number;
-          regularPrice: number;
-          bulkPrice: number;
-          imageUrl: string;
-        };
+        products: {
+                product: {
+                  id: string;
+                  _id: string;
+                  name: string;
+                  regularPrice: number;
+                };
+                quantity: number;
+                pricePerUnit: number;
+                totalAmount: number;
+              }[];
         quantity: number;
         pricePerUnit: number;
-        totalAmount: number;
+        grandTotal: number;
         amountPaid: number;
         status: 'completed' | 'due';
         saleDate: Date;
@@ -68,12 +73,19 @@ export type TownFormData = Omit<Town, "id">; // Excludes `id`
 
 
       // New Buyer definition
-export type Buyer = {
+      export type Buyer = {
         id: string;
         name: string;
         type: 'shopkeeper' | 'technician';
-        townId: string;
+        townId?: string; // Keep townId for backward compatibility
+        town?: {
+          id: string;
+          name: string;
+          district: string;
+          state: string;
+          country: string;
+        }; // Add the town object
       };
       
       // New BuyerFormData definition
-export type BuyerFormData = Omit<Buyer, "id">; // Excludes `id`
+export type BuyerFormData = Omit<Buyer, "id">& { townId: string }; // Excludes `id`

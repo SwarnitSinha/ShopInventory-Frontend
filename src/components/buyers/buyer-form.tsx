@@ -41,6 +41,7 @@ export function BuyerForm({ buyer, onClose }: { buyer?: Buyer; onClose?: () => v
     defaultValues: buyer
       ? {
           ...buyer,
+          townId: buyer.townId ?? "",
         }
       : {
           name: "",

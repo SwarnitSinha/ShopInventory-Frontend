@@ -2,7 +2,7 @@ import { SidebarNav } from "../components/layout/sidebar-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { useAuth } from "../hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
-import { Package, DollarSign, ShoppingCart } from "lucide-react";
+import { Package, IndianRupeeIcon, ShoppingCart } from "lucide-react";
 import type { Product } from "../types";
 import { Layout } from "../components/layout/layout";
 
@@ -25,8 +25,17 @@ export default function Dashboard() {
     },
     {
       title: "Total Inventory Value",
-      icon: DollarSign,
-      value: `$${products?.reduce((sum, p) => sum + Number(p.purchasePrice) * p.quantity, 0).toFixed(2) || "0.00"}`,
+      icon: IndianRupeeIcon,
+      value: products
+    ? new Intl.NumberFormat("en-IN", {
+        maximumFractionDigits: 2,
+      }).format(
+        products.reduce(
+          (sum, p) => sum + Number(p.purchasePrice) * p.quantity,
+          0
+        )
+      )
+    : "0.00",
     },
   ];
 
@@ -87,7 +96,7 @@ export default function Dashboard() {
                       </div>
                       {user?.role === "admin" && (
                         <p className="font-medium">
-                          ${Number(product.purchasePrice).toFixed(2)}
+                          {"\u20B9"}{Number(product.purchasePrice).toFixed(2)}
                         </p>
                       )}
                     </div>

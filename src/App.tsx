@@ -12,6 +12,7 @@ import Sales from "./pages/sales";
 import Buyers from "./pages/buyers";
 import Towns from "./pages/towns";
 import React from "react"
+import BillGeneratePage from "./pages/bill-generate-page";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <ProtectedRoute path="/" component={Dashboard} />
       <ProtectedRoute path="/products" component={Products} />
       <ProtectedRoute path="/sales" component={Sales} />
+      <ProtectedRoute path="/bill-generate" component={BillGeneratePage} />
       <ProtectedRoute path="/buyers" component={Buyers} />
       <ProtectedRoute path="/towns" component={Towns} />
       <Route component={NotFound} />

@@ -34,7 +34,8 @@ export function ProductForm({ product, onClose }: { product?: Product; onClose?:
       : {
       name: "",
       description: "",
-      imageUrl: SAMPLE_IMAGES[Math.floor(Math.random() * SAMPLE_IMAGES.length)],
+      // imageUrl: SAMPLE_IMAGES[Math.floor(Math.random() * SAMPLE_IMAGES.length)],
+      imageUrl: undefined,
       quantity: 0,
       purchasePrice: "0",
       regularPrice: "0",
@@ -46,20 +47,36 @@ export function ProductForm({ product, onClose }: { product?: Product; onClose?:
     console.log("Form submitted:", data); // Debugging line
     setIsSubmitting(true);
     try {
-      if (product) {
-        console.log("Update CLICKED");
-        await apiRequest("PATCH", `/api/products/${product.id}`, data);
-        toast({
-          title: "Product updated",
-          description: "The product has been updated successfully",
-        });
-      } else {
-        await apiRequest("POST", "/api/products", data);
-        toast({
-          title: "Product created",
-          description: "The product has been created successfully",
-        });
+
+      const formData = new FormData();
+
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("quantity", String(data.quantity));
+      formData.append("purchasePrice", String(data.purchasePrice));
+      formData.append("regularPrice", String(data.regularPrice));
+      formData.append("bulkPrice", String(data.bulkPrice));
+      
+      const imageFile: any = form.getValues("imageUrl");
+      formData.append("image",imageFile)
+
+      console.log("IMAGE TYPE: ",typeof(imageFile))
+      // Send the FormData to the backend
+      // Use apiRequest instead of fetch
+    const response = await apiRequest(
+      product ? "PATCH" : "POST", // HTTP method
+      product ? `/api/products/${product.id}` : "/api/products", // Endpoint
+      formData, // Body
+    );
+
+      if (!response.ok) {
+        throw new Error("Failed to save product");
       }
+      toast({
+        title: product ? "Product updated" : "Product created",
+        description: `The product has been ${product ? "updated" : "created"} successfully`,
+      });
+
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       if (onClose) onClose();
     } catch (error) {
@@ -78,119 +95,157 @@ export function ProductForm({ product, onClose }: { product?: Product; onClose?:
       <DialogHeader>
         <DialogTitle>{product ? "Edit" : "Add"} Product</DialogTitle>
       </DialogHeader>
-      <form onSubmit={form.handleSubmit(onSubmit, (errors)=>{
-        console.log("Validation errors : ",errors);
-      })} className="space-y-4 py-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      <form
+  onSubmit={form.handleSubmit(onSubmit, (errors) => {
+    console.log("Validation errors : ", errors);
+  })}
+  className="space-y-4 py-4"
+>
+  {/* Line 1: Name and Image */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <FormField
+      control={form.control}
+      name="name"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Name</FormLabel>
+          <FormControl>
+            <Input {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+    <FormField
+  control={form.control}
+  name="imageUrl"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Product Image</FormLabel>
+      <FormControl>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              field.onChange(file); // Store the File object in the form state
+            }
+          }}
         />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="quantity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Quantity</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="purchasePrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Purchase Price</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="regularPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Regular Price</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="bulkPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bulk Price</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <Button disabled={isSubmitting} type="submit" className="w-full">
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {product ? "Updating..." : "Creating..."}
-            </>
-          ) : (
-            <>{product ? "Update" : "Create"} Product</>
-          )}
-        </Button>
-      </form>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+  </div>
+
+  {/* Line 2: Description */}
+  <FormField
+    control={form.control}
+    name="description"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Description</FormLabel>
+        <FormControl>
+          <Textarea {...field} />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  {/* Line 3: Quantity and Purchase Price */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <FormField
+      control={form.control}
+      name="quantity"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Quantity</FormLabel>
+          <FormControl>
+            <Input
+              type="number"
+              {...field}
+              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+    <FormField
+      control={form.control}
+      name="purchasePrice"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Purchase Price</FormLabel>
+          <FormControl>
+            <Input
+              type="number"
+              step="0.01"
+              {...field}
+              onChange={(e) => field.onChange(e.target.value)}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </div>
+
+  {/* Line 4: Regular Price and Bulk Price */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <FormField
+      control={form.control}
+      name="regularPrice"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Regular Price</FormLabel>
+          <FormControl>
+            <Input
+              type="number"
+              step="0.01"
+              {...field}
+              onChange={(e) => field.onChange(e.target.value)}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+    <FormField
+      control={form.control}
+      name="bulkPrice"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Bulk Price</FormLabel>
+          <FormControl>
+            <Input
+              type="number"
+              step="0.01"
+              {...field}
+              onChange={(e) => field.onChange(e.target.value)}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </div>
+
+  {/* Submit Button */}
+  <Button disabled={isSubmitting} type="submit" className="w-full">
+    {isSubmitting ? (
+      <>
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        {product ? "Updating..." : "Creating..."}
+      </>
+    ) : (
+      <>{product ? "Update" : "Create"} Product</>
+    )}
+  </Button>
+</form>
     </Form>
   );
 }

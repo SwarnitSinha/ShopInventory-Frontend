@@ -13,10 +13,19 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   console.log(`API Request: ${method} ${url}`, data);
+
+  // Determine headers and body based on the type of `data`
+  const isFormData = data instanceof FormData;
+  const headers = isFormData
+    ? undefined // Let the browser set the Content-Type for FormData
+    : { "Content-Type": "application/json" };
+
+  const body = isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined;
+
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
+    headers,
+    body,
     credentials: "include",
   });
 

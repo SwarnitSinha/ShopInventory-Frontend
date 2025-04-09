@@ -12,6 +12,9 @@ export default function Buyers() {
   const { user } = useAuth();
   const { data: buyers } = useQuery<Buyer[]>({
     queryKey: ["/api/buyers"],
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0,
   });
 
   return (
