@@ -25,13 +25,13 @@ export function SidebarNav({ isOpen, logout }: SidebarNavProps) {
 
   return (
     <div
-  className={cn(
-    'fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r shadow-lg transform transition-transform duration-300',
-    isOpen ? 'translate-x-0' : '-translate-x-full',
-    'md:relative md:translate-x-0', // Always visible on larger screens
-    'flex flex-col' // Make the sidebar a flex container with column direction
-  )}
->
+    className={cn(
+      'fixed top-0 left-0 z-40 h-screen w-64 bg-sidebar border-r shadow-lg transform transition-transform duration-300',
+      isOpen ? 'translate-x-0' : '-translate-x-full',
+      'md:relative md:translate-x-0',
+      'flex flex-col'
+    )}
+  >
   <div className="flex h-14 items-center border-b px-4">
     <h2 className="text-lg font-semibold text-sidebar-foreground">Inventory Pro</h2>
   </div>

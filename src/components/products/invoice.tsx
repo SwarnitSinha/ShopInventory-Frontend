@@ -31,9 +31,12 @@ export function Invoice({ sale, products }: InvoiceProps) {
   };
 
   return (
-    <Card className="print:shadow-none">
-      <CardHeader className="flex-row items-center justify-between print:!border-b">
-        <CardTitle>Invoice</CardTitle>
+    <Card className="print:shadow-none w-full min-h-screen sm:max-w-4xl sm:mx-auto sm:my-6 sm:rounded-md sm:shadow-lg bg-white">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4">
+        <div>
+          <h1 className="text-2xl font-bold">Invoice</h1>
+          <p className="text-sm text-muted-foreground">Invoice #{sale.invoiceNumber}</p>
+        </div>
         <Button
           onClick={handlePrint}
           variant="outline"
@@ -49,73 +52,78 @@ export function Invoice({ sale, products }: InvoiceProps) {
           ) : (
             <>
               <Printer className="mr-2 h-4 w-4" />
-              Print Invoice
+              Print
             </>
           )}
         </Button>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Sale Details */}
-        <div className="space-y-2">
-          <h3 className="font-semibold">Sale Details</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <span className="text-muted-foreground">Invoice Date:</span>
-            <span>{new Date(sale.createdAt).toLocaleDateString()}</span>
-            <span className="text-muted-foreground">Invoice Number:</span>
-            <span><b>{sale.invoiceNumber}</b></span>
-            <span className="text-muted-foreground">Buyer Name:</span>
-            <span><b>{sale.buyer.name.toLocaleUpperCase()}</b></span>
-            <span className="text-muted-foreground">Sale Date:</span>
-            <span>{new Date(sale.saleDate).toLocaleDateString()}</span>
-          </div>
-        </div>
-
-        {/* Product Details Table */}
-<div className="space-y-4">
-  <h3 className="font-semibold">Product Details</h3>
-  <table className="w-full border-collapse border border-gray-300">
-    <thead className="bg-gray-100">
-      <tr>
-        <th className="border border-gray-300 px-4 py-2 text-left">#</th>
-        <th className="border border-gray-300 px-4 py-2 text-left">Product Name</th>
-        <th className="border border-gray-300 px-4 py-2 text-right">Quantity</th>
-        <th className="border border-gray-300 px-4 py-2 text-right">Price Per Unit</th>
-        <th className="border border-gray-300 px-4 py-2 text-right">Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      {products.map((product, index) => (
-        <tr key={product.product.id} className="border border-gray-300">
-          <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
-          <td className="border border-gray-300 px-4 py-2">{product.product.name}</td>
-          <td className="border border-gray-300 px-4 py-2 text-right">{product.quantity}</td>
-          <td className="border border-gray-300 px-4 py-2 text-right">
-            ₹{Number(product.pricePerUnit).toFixed(2)}
-          </td>
-          <td className="border border-gray-300 px-4 py-2 text-right">
-            ₹{Number(product.totalAmount).toFixed(2)}
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
-        {/* Payment Details */}
-        <div className="space-y-2">
-          <h3 className="font-semibold">Payment Details</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
+  
+      <CardContent className="space-y-6 py-6">
+        {/* Sale Metadata */}
+        <section className="grid grid-cols-2 gap-2 text-sm">
+          <div className="text-muted-foreground">Invoice Date:</div>
+          <div>{new Date(sale.createdAt).toLocaleDateString()}</div>
+          <div className="text-muted-foreground">Sale Date:</div>
+          <div>{new Date(sale.saleDate).toLocaleDateString()}</div>
+          <div className="text-muted-foreground">Buyer:</div>
+          <div className="font-medium uppercase">{sale.buyer.name}</div>
+        </section>
+  
+        <hr />
+  
+        {/* Product Details */}
+        <section>
+          <h2 className="text-lg font-semibold mb-2">Product Details</h2>
+          <table className="w-full border-collapse text-sm">
+            <thead className="bg-gray-100 text-left">
+              <tr>
+                <th className="p-2 border">#</th>
+                <th className="p-2 border">Product</th>
+                <th className="p-2 border text-right">Qty</th>
+                <th className="p-2 border text-right">Unit Price</th>
+                <th className="p-2 border text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product, index) => (
+                <tr key={product.product.id} className="border-t">
+                  <td className="p-2 border">{index + 1}</td>
+                  <td className="p-2 border">{product.product.name}</td>
+                  <td className="p-2 border text-right">{product.quantity}</td>
+                  <td className="p-2 border text-right">
+                    ₹{Number(product.pricePerUnit).toFixed(2)}
+                  </td>
+                  <td className="p-2 border text-right">
+                    ₹{Number(product.totalAmount).toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+  
+        <hr />
+  
+        {/* Payment Summary */}
+        <section>
+          <h2 className="text-lg font-semibold mb-2">Payment Summary</h2>
+          <div className="grid grid-cols-2 gap-y-2 text-sm">
             <span className="text-muted-foreground">Total Amount:</span>
-            <span>{"\u20B9"}{Number(sale.grandTotal).toLocaleString('en-IN')}</span>
+            <span className="font-medium">₹{sale.grandTotal.toLocaleString("en-IN")}</span>
             <span className="text-muted-foreground">Amount Paid:</span>
-            <span>{"\u20B9"}{Number(sale.amountPaid).toLocaleString('en-IN')}</span>
+            <span className="font-medium">₹{sale.amountPaid.toLocaleString("en-IN")}</span>
             <span className="text-muted-foreground">Amount Due:</span>
-            <span>{"\u20B9"}{(sale.grandTotal - sale.amountPaid).toLocaleString('en-IN')}</span>
-            <span className="text-muted-foreground">Sale Status:</span>
-            <span>{sale.status === "completed" ? "Completed" : "Due"}</span>
+            <span className={sale.grandTotal - sale.amountPaid > 0 ? "text-red-600 font-medium" : "text-green-600 font-medium"}>
+              ₹{(sale.grandTotal - sale.amountPaid).toLocaleString("en-IN")}
+            </span>
+            <span className="text-muted-foreground">Status:</span>
+            <span className={`capitalize font-medium ${sale.status === "completed" ? "text-green-600" : "text-red-600"}`}>
+              {sale.status}
+            </span>
           </div>
-        </div>
+        </section>
       </CardContent>
     </Card>
   );
+  
 }

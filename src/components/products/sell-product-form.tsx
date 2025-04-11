@@ -9,20 +9,24 @@ import { Input } from "../../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { useToast } from "../../hooks/use-toast";
 import { apiRequest } from "../../lib/queryClient";
+import { PlusCircle, Trash2 } from "lucide-react";
+import { Dialog, DialogContent } from "../../components/ui/dialog"; // Adjust path as needed
+import { BuyerForm } from "../buyers/buyer-form"; // Adjust path as needed
 
 export function SellProductForm({
   sale,
   onClose,
   onSubmit,
 }: {
-  sale?: Sale;
+  sale?: Sale | null;
   onClose?: () => void;
   onSubmit?: (data: InsertSale) => void;
 }) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [buyers, setBuyers] = useState<Buyer[]>([]);
-  
+  const [isBuyerModalOpen, setBuyerModalOpen] = useState(false);
+
   const [products, setProducts] = useState<Product[]>([]);
 
   const form = useForm<InsertSale>({
@@ -177,212 +181,281 @@ useEffect(() => {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit, (error)=>{
-      console.log("Validation errors:", error);
-    })} className="space-y-4">
+    <form
+      onSubmit={form.handleSubmit(handleSubmit, (error) => {
+        console.log("Validation errors:", error);
+      })}
+      className="space-y-6"
+    >
       {/* Buyer and Sale Date */}
-<div className="grid grid-cols-5 gap-4">
-  {/* Buyer Dropdown */}
-  <div className="col-span-3 flex items-center gap-2">
-    <label className="text-sm font-medium">Buyer:</label>
-    <Select
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Buyer */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Buyer:</label>
+          <Select
   value={buyer}
   onValueChange={(value) => {
-    console.log("Selected Buyer ID:", value);
-    setBuyer(value); // Update state
-    form.setValue("buyer", value, { shouldValidate: true, shouldDirty: true }); // Update form
+    if (value === "new") {
+      setBuyerModalOpen(true);
+    } else {
+      setBuyer(value);
+      form.setValue("buyer", value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
   }}
 >
   <SelectTrigger className="w-full">
     <SelectValue placeholder="Select a buyer" />
   </SelectTrigger>
   <SelectContent>
+    <SelectItem value="__placeholder__" disabled>
+      Select a buyer
+    </SelectItem>
     {buyers.map((buyer) => (
       <SelectItem key={buyer.id} value={buyer.id}>
         {buyer.name} - {buyer.town?.name}
       </SelectItem>
     ))}
+    <SelectItem value="new" className="text-primary font-semibold">
+      ➕ New Buyer
+    </SelectItem>
   </SelectContent>
 </Select>
-    {form.formState.errors.buyer && (
-    <p className="text-red-500 text-sm">{form.formState.errors.buyer.message}</p>
-  )}
-  </div>
-
-{/* Sale Date Input */}
-<div className="col-span-2 flex items-center gap-2">
-  <label className="text-sm font-medium">Sale Date:</label>
-  <Input
-    type="date"
-    className="w-full text-right"
-    value={
-      form.watch("saleDate") && form.watch("saleDate") instanceof Date
-        ? form.watch("saleDate")!.toISOString().split("T")[0] // Ensure yyyy-MM-dd format
-        : "" // Handle null or invalid values
-    }
-    onChange={(e) => {
-      const value = e.target.value ? new Date(e.target.value) : null; // Allow null when cleared
-      form.setValue("saleDate", value, { shouldValidate: true, shouldDirty: true });
-    }}
-  />
-</div>
-</div>
-
-{/* Add Product Button */}
-<div className="flex justify-between items-center mb-4">
-  <h2 className="text-lg font-semibold">Products</h2>
-  <Button
-    variant="outline"
-    size="sm"
-    onClick={() => append({ product: "", quantity: 1, pricePerUnit: 0, totalAmount: 0 })}
-    className="flex items-center gap-1"
-  >
-    <span>+</span> Add Product
-  </Button>
-</div>
-
-      {/* Products Table */}
-<div className="overflow-x-auto">
-  <table className="min-w-full border-collapse border border-gray-300">
-    <thead>
-      <tr className="bg-gray-100">
-        <th className="border border-gray-300 px-4 py-2 text-left">Product</th>
-        <th className="border border-gray-300 px-4 py-2 text-left">Quantity</th>
-        <th className="border border-gray-300 px-4 py-2 text-left">Price Per Unit</th>
-        <th className="border border-gray-300 px-4 py-2 text-left">Total Amount</th>
-        <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-  {fields.map((field, index) => (
-    <tr key={field.id}>
-      {/* Product Dropdown with Validation */}
-      <td className="border border-gray-300 px-4 py-2">
-        <Select
-          onValueChange={(value) => {
-            form.setValue(`products.${index}.product`, value, { shouldValidate: true, shouldDirty: true });
-            const selected = products.find((p) => p.id === value);
-            if (selected) {
-              form.setValue(`products.${index}.pricePerUnit`, Number(selected.regularPrice), { shouldValidate: true, shouldDirty: true });
-              form.setValue(`products.${index}.quantity`, 1, { shouldValidate: true, shouldDirty: true });
-              form.setValue(`products.${index}.totalAmount`, Number(selected.regularPrice), { shouldValidate: true, shouldDirty: true });
+          {form.formState.errors.buyer && (
+            <p className="text-red-500 text-sm">
+              {form.formState.errors.buyer.message}
+            </p>
+          )}
+        </div>
+  
+        {/* Sale Date */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Sale Date:</label>
+          <Input
+            type="date"
+            className="w-full text-right"
+            value={
+              form.watch("saleDate") instanceof Date
+                ? form.watch("saleDate")!.toISOString().split("T")[0]
+                : ""
             }
-          }}
-          value={form.watch(`products.${index}.product`) || ""}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a product" />
-          </SelectTrigger>
-          <SelectContent>
-            {products.map((product) => (
-              <SelectItem key={product.id} value={product.id}>
-                {product.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Show validation error if product is not selected */}
-        {form.formState.errors.products?.[index]?.product && (
-          <p className="text-red-500 text-sm">
-            {form.formState.errors.products[index]?.product?.message}
-          </p>
-        )}
-      </td>
-
-      {/* Quantity Input */}
-      <td className="border border-gray-300 px-4 py-2">
-        <Input
-          type="number"
-          min="1"
-          {...form.register(`products.${index}.quantity`, { valueAsNumber: true })}
-          onChange={(e) => {
-            const quantity = parseInt(e.target.value) || 0;
-            const price = form.getValues(`products.${index}.pricePerUnit`);
-            form.setValue(`products.${index}.quantity`, quantity, { shouldValidate: true, shouldDirty: true });
-            form.setValue(`products.${index}.totalAmount`, quantity * price, { shouldValidate: true, shouldDirty: true });
-          }}
-        />
-      </td>
-
-      {/* Price Per Unit Input */}
-      <td className="border border-gray-300 px-4 py-2">
-        <Input
-          type="number"
-          step="0.01"
-          {...form.register(`products.${index}.pricePerUnit`, { valueAsNumber: true })}
-          onChange={(e) => {
-            const price = parseFloat(e.target.value) || 0;
-            const quantity = form.getValues(`products.${index}.quantity`);
-            form.setValue(`products.${index}.pricePerUnit`, price, { shouldValidate: true, shouldDirty: true });
-            form.setValue(`products.${index}.totalAmount`, quantity * price, { shouldValidate: true, shouldDirty: true });
-          }}
-        />
-      </td>
-
-      {/* Total Amount */}
-      <td className="border border-gray-300 px-4 py-2">
-        ₹{form.watch(`products.${index}.totalAmount`)?.toFixed(2) || "0.00"}
-      </td>
-
-      {/* Remove Button */}
-      <td className="border border-gray-300 px-4 py-2">
+            onChange={(e) => {
+              const value = e.target.value ? new Date(e.target.value) : null;
+              form.setValue("saleDate", value, {
+                shouldValidate: true,
+                shouldDirty: true,
+              });
+            }}
+          />
+        </div>
+      </div>
+  
+      {/* Add Product Header */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Products</h2>
         <Button
-          variant="destructive"
+          variant="outline"
           size="sm"
-          onClick={() => remove(index)}
+          onClick={() =>
+            append({
+              product: "",
+              quantity: 1,
+              pricePerUnit: 0,
+              totalAmount: 0,
+            })
+          }
+          className="flex items-center gap-2 hover:shadow-md hover:border-primary transition-all duration-200 group"
         >
-          Remove
+          <PlusCircle className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+          <span className="text-sm font-medium text-primary group-hover:underline">
+            Add Product
+          </span>
         </Button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-  </table>
-</div>
-
-{/* Total and Dues */}
-<div className="grid grid-cols-2 gap-4 items-center">
-  {/* Grand Total */}
-<div className="text-lg font-semibold">
-  Grand Total: ₹{new Intl.NumberFormat("en-IN").format(calculateGrandTotal())}
-</div>
-
-  {/* Amount Paid with Validation */}
-<div className="flex flex-col gap-1">
-  <label className="text-sm font-medium">Amount Paid:</label>
-  <Input
-    type="number"
-    step="0.01"
-    min="0"
-    {...form.register("amountPaid", { valueAsNumber: true })}
-    value={form.watch("amountPaid") || 0}
-    onChange={(e) => {
-      const value = parseFloat(e.target.value) || 0;
-      form.setValue("amountPaid", value, { shouldValidate: true, shouldDirty: true });
-    }}
-  />
-
-  {/* Show validation error if amount paid is empty */}
-  {form.formState.errors.amountPaid && (
-    <p className="text-red-500 text-sm">{form.formState.errors.amountPaid.message}</p>
-  )}
-</div>
-
-{/* Dues */}
-<div
-  className={`text-lg font-semibold ${
-    calculateDues() === 0 ? "text-green-500" : "text-red-500"
-  }`}
->
-  Dues: ₹{new Intl.NumberFormat("en-IN").format(calculateDues())}
-</div>
-
-</div>
-
-      <Button disabled={isSubmitting} type="submit" className="w-full">
+      </div>
+  
+      {/* Products Table */}
+      <div className="overflow-x-auto rounded-lg border border-gray-300">
+        <table className="min-w-full border-collapse">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2 text-left text-sm">Product</th>
+              <th className="px-4 py-2 text-left text-sm">Quantity</th>
+              <th className="px-4 py-2 text-left text-sm">Price Per Unit</th>
+              <th className="px-4 py-2 text-left text-sm">Total</th>
+              <th className="px-4 py-2 text-center text-sm">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fields.map((field, index) => (
+              <tr key={field.id} className="border-t">
+                <td className="px-4 py-2">
+                  <Select
+                    onValueChange={(value) => {
+                      form.setValue(`products.${index}.product`, value, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                      const selected = products.find((p) => p.id === value);
+                      if (selected) {
+                        form.setValue(
+                          `products.${index}.pricePerUnit`,
+                          Number(selected.regularPrice),
+                          { shouldValidate: true, shouldDirty: true }
+                        );
+                        form.setValue(
+                          `products.${index}.quantity`,
+                          1,
+                          { shouldValidate: true, shouldDirty: true }
+                        );
+                        form.setValue(
+                          `products.${index}.totalAmount`,
+                          Number(selected.regularPrice),
+                          { shouldValidate: true, shouldDirty: true }
+                        );
+                      }
+                    }}
+                    value={form.watch(`products.${index}.product`) || ""}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a product" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.map((product) => (
+                        <SelectItem key={product.id} value={product.id}>
+                          {product.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {form.formState.errors.products?.[index]?.product && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.products[index]?.product?.message}
+                    </p>
+                  )}
+                </td>
+  
+                <td className="px-4 py-2">
+                  <Input
+                    type="number"
+                    min="1"
+                    {...form.register(`products.${index}.quantity`, {
+                      valueAsNumber: true,
+                    })}
+                    onChange={(e) => {
+                      const quantity = parseInt(e.target.value) || 0;
+                      const price = form.getValues(
+                        `products.${index}.pricePerUnit`
+                      );
+                      form.setValue(`products.${index}.totalAmount`, quantity * price, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
+                  />
+                </td>
+  
+                <td className="px-4 py-2">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...form.register(`products.${index}.pricePerUnit`, {
+                      valueAsNumber: true,
+                    })}
+                    onChange={(e) => {
+                      const price = parseFloat(e.target.value) || 0;
+                      const quantity = form.getValues(
+                        `products.${index}.quantity`
+                      );
+                      form.setValue(
+                        `products.${index}.totalAmount`,
+                        quantity * price,
+                        { shouldValidate: true, shouldDirty: true }
+                      );
+                    }}
+                  />
+                </td>
+  
+                <td className="px-4 py-2 font-medium">
+                  ₹{form.watch(`products.${index}.totalAmount`)?.toFixed(2) || "0.00"}
+                </td>
+  
+                <td className="px-4 py-2 text-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-red-600 hover:bg-red-50"
+                    onClick={() => remove(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+  
+      {/* Totals and Payment */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div className="text-lg font-semibold">
+          Grand Total: ₹{new Intl.NumberFormat("en-IN").format(calculateGrandTotal())}
+        </div>
+  
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Amount Paid:</label>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            {...form.register("amountPaid", { valueAsNumber: true })}
+            value={form.watch("amountPaid") || 0}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value) || 0;
+              form.setValue("amountPaid", value, {
+                shouldValidate: true,
+                shouldDirty: true,
+              });
+            }}
+          />
+          {form.formState.errors.amountPaid && (
+            <p className="text-red-500 text-sm">
+              {form.formState.errors.amountPaid.message}
+            </p>
+          )}
+        </div>
+  
+        <div
+          className={`text-lg font-semibold ${
+            calculateDues() === 0 ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          Dues: ₹{new Intl.NumberFormat("en-IN").format(calculateDues())}
+        </div>
+      </div>
+  
+      {/* Submit Button */}
+      <Button disabled={isSubmitting} type="submit" className="w-full mt-4">
         {isSubmitting ? "Processing..." : "Complete Sale"}
       </Button>
+
+      <Dialog open={isBuyerModalOpen} onOpenChange={setBuyerModalOpen}>
+  <DialogContent className="sm:max-w-md">
+    <BuyerForm
+      onClose={() => {
+        setBuyerModalOpen(false);
+        // Refresh the buyers list
+        fetch("/api/buyers")
+          .then((res) => res.json())
+          .then((data) => setBuyers(data));
+      }}
+    />
+  </DialogContent>
+</Dialog>
+
     </form>
+
+    
   );
 }

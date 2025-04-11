@@ -54,7 +54,7 @@ export default function Dashboard() {
             {metrics.map((metric) => {
               const Icon = metric.icon;
               return (
-                <Card key={metric.title}>
+                <Card key={metric.title} className="transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       {metric.title}

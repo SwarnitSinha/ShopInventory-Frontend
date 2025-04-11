@@ -17,6 +17,7 @@ import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { SellProductForm } from "../components/products/sell-product-form";
 import { apiRequest, queryClient } from "../lib/queryClient";
+
 import {
   Dialog,
   DialogContent,
@@ -129,6 +130,20 @@ export default function Sales() {
     fetchInitialSales();
   }, []); // Empty dependency array ensures this runs only once
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeModal(); // your modal closing function
+      }
+    };
+    if (isModalOpen) {
+      window.addEventListener("keydown", handleEsc);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [isModalOpen]);
+
   function resetFilters() {
     setFilters({
       buyerName: "",
@@ -158,9 +173,8 @@ export default function Sales() {
   }
 
   function handleUpdateClick(sale: Sale) {
-    console.log("Selected Sale for Update:", sale);
-    setSelectedSale(sale); // Set the selected sale
-    setUpdateDialogOpen(true); // Open the update dialog
+    sessionStorage.setItem("selectedSale", JSON.stringify(sale));
+    window.location.href = "/bill-generate";
   }
 
   function closeUpdateDialog() {
@@ -307,10 +321,9 @@ export default function Sales() {
         </div>
 
         {/* Sales Table */}
-        <div className="p-6 flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto">
           {isLoading ? (
-            <div className="text-center">Loading...</div>
-          ) : (
+            <div className="text-center py-10 text-gray-500">Loading sales...</div>          ) : (
             <Card>
               <CardHeader>
                 <CardTitle className="flex justify-between items-center w-full">
@@ -358,10 +371,13 @@ export default function Sales() {
                         <TableRow key={sale.id || sale._id || Math.random()} className={sale.status === "due" ? "bg-red-50" : "bg-green-50"}>
                           <TableCell>{sale.buyer?.name || "N/A"}</TableCell>
                           <TableCell>
-                            {sale.products.map((p) => (
-                              <span key={p.product?.id || Math.random()}>{p.product?.name}</span>
-                            ))}
-                          </TableCell>
+  {sale.products.slice(0, 2).map((p, index) => (
+    <span key={p.product?.id || `product-${index}`} className="mr-2">
+      {p.product?.name}
+    </span>
+  ))}
+  {sale.products.length > 2 && <span>...</span>}
+</TableCell>
                           <TableCell>
                             {sale.products.reduce((sum, p) => sum + p.quantity, 0)}
                           </TableCell>
@@ -403,18 +419,18 @@ export default function Sales() {
 
       {/* Modal for Invoice */}
       {isModalOpen && selectedSale && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-4 rounded shadow-lg w-2/3 max-w-3xl h-auto max-h-[80vh] overflow-y-auto relative">
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-              onClick={closeModal}
-            >
-              ✕
-            </button>
-            <Invoice sale={selectedSale} products={selectedSale.products} />
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 sm:p-6">
+    <div className="relative w-full max-w-3xl sm:rounded bg-white shadow-lg overflow-y-auto max-h-[90vh]">
+      <button
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10"
+        onClick={closeModal}
+      >
+        ✕
+      </button>
+      <Invoice sale={selectedSale} products={selectedSale.products} />
+    </div>
+  </div>
+)}
 
       {updateDialogOpen && selectedSale && (
         <Dialog open={updateDialogOpen}
