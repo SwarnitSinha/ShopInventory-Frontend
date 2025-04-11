@@ -40,7 +40,7 @@ export function PricingTable({ product }: { product: Product }) {
           <TableRow key={price.type}>
             <TableCell>{price.type}</TableCell>
             <TableCell className="text-right">
-              ${Number(price.price).toFixed(2)}
+            {"\u20B9"}{Number(price.price).toFixed(2)}
             </TableCell>
           </TableRow>
         ))}

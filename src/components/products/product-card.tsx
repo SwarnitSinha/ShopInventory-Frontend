@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { PricingTable } from "./pricing-table";
 import { Button } from "../../components/ui/button";
-import { Edit, Trash2, DollarSign, Loader2 } from "lucide-react";
+import { Edit, Trash2, IndianRupeeIcon, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "../../components/ui/dialog";
 import {
   AlertDialog,
@@ -56,7 +56,7 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Card>
+    <Card className="transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer">
   <CardHeader className="space-y-2"> {/* Added spacing between title and icons */}
     {/* Title */}
     <CardTitle className="text-lg">{product.name}</CardTitle>
@@ -66,23 +66,17 @@ export function ProductCard({ product }: { product: Product }) {
       {canSell && (
         <Dialog open={sellDialogOpen} onOpenChange={setSellDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <DollarSign className="h-4 w-4" />
+            <Button variant="ghost" size="icon" title="Sell" onClick={() => window.location.href = "/bill-generate"}>
+              <IndianRupeeIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <SellProductForm 
-              product={product} 
-              onClose={() => setSellDialogOpen(false)} 
-            />
-          </DialogContent>
         </Dialog>
       )}
       {canEdit && (
         <>
           <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" title="Edit">
                 <Edit className="h-4 w-4" />
               </Button>
             </DialogTrigger>
@@ -95,7 +89,7 @@ export function ProductCard({ product }: { product: Product }) {
           </Dialog>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" title="Delete">
                 <Trash2 className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
@@ -130,11 +124,17 @@ export function ProductCard({ product }: { product: Product }) {
     </div>
   </CardHeader>
   <CardContent className="space-y-4">
-    <img
-      src={product.imageUrl}
-      alt={product.name}
-      className="aspect-square w-full rounded-lg object-cover"
-    />
+  <img
+    src={
+      product.imageUrl.startsWith("/uploads/")
+        ? `http://localhost:5000${product.imageUrl}` // Prepend base URL for local uploads
+        : product.imageUrl.startsWith("http")
+        ? product.imageUrl // Use the URL as-is for online images
+         : `http://localhost:5000/uploads/${product.imageUrl}` // Prepend /uploads/ for other cases
+    }
+    alt={product.name}
+    className="aspect-square w-full rounded-lg object-cover"
+  />
     <p className="text-sm text-muted-foreground">{product.description}</p>
     <div className="flex items-center justify-between">
       <span className="text-sm font-medium">
@@ -142,7 +142,7 @@ export function ProductCard({ product }: { product: Product }) {
       </span>
       {canEdit && (
         <span className="text-sm font-medium">
-          Cost: ${Number(product.purchasePrice).toFixed(2)}
+          Cost: {"\u20B9"}{Number(product.purchasePrice).toFixed(2)}
         </span>
       )}
     </div>

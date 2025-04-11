@@ -14,15 +14,17 @@ export function Layout({ children }: {children: React.ReactNode}) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header toggleSidebar={toggleSidebar} />
-      <div className="flex flex-1">
-        <SidebarNav isOpen={isSidebarOpen} logout={logoutMutation.mutate} />
-        <main className="flex-1 overflow-auto bg-background">
-          {children}
-        </main>
-      </div>
-      <Footer />
-    </div>
+    <div className="flex min-h-screen">
+  <SidebarNav isOpen={isSidebarOpen} logout={logoutMutation.mutate} />
+
+  {/* Main content scrolls separately */}
+  <div className="flex-1 flex flex-col h-screen overflow-hidden">
+    <Header toggleSidebar={toggleSidebar} />
+    <main className="flex-1 overflow-auto bg-background p-4">
+      {children}
+    </main>
+    <Footer />
+  </div>
+</div>
   );
 }

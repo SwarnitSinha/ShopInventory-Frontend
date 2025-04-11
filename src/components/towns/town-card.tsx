@@ -48,7 +48,7 @@ export function TownCard({ town }: { town: Town }) {
   };
 
   return (
-    <Card>
+    <Card className="transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer">
       <CardHeader className="space-y-0">
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg">{town.name}</CardTitle>
