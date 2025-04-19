@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { useAuth } from '../../hooks/use-auth';
 
 const routes = [
-  { title: 'Dashboard', icon: Home, href: '/', roles: ['admin', 'staff', 'technician'] },
+  { title: 'Dashboard', icon: Home, href: '/dashboard', roles: ['admin', 'staff', 'technician'] },
   { title: 'Products', icon: Package, href: '/products', roles: ['admin', 'staff', 'technician'] },
   { title: 'Sales', icon: IndianRupeeIcon, href: '/sales', roles: ['admin', 'staff'] },
   { title: 'Buyer', icon: User2Icon, href: '/buyers', roles: ['admin', 'staff'] },

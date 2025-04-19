@@ -80,9 +80,9 @@ export default function Products() {
             </form>
 
             {/* Products Grid */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
               {(filteredProducts || products)?.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} onActionComplete={() => fetchProducts(searchQuery)}/>
               ))}
             </div>
           </div>
@@ -90,19 +90,21 @@ export default function Products() {
           {/* Floating Add Product Button */}
           {user?.role === "admin" && (
             <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  size="lg"
-                  className="fixed bottom-4 right-4 bg-primary text-white shadow-lg rounded-full p-4 md:p-3"
-                >
-                  <Plus className="h-5 w-5 mr-1" />
-                  Add Product
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <ProductForm />
-              </DialogContent>
-            </Dialog>
+            <DialogTrigger asChild>
+              <Button
+                size="lg"
+                className="fixed bottom-4 right-4 bg-primary text-white shadow-lg rounded-full p-4 md:p-3"
+              >
+                <Plus className="h-5 w-5 mr-1" />
+                Add Product
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <ProductForm
+                onActionComplete={() => fetchProducts(searchQuery)}
+              />
+            </DialogContent>
+          </Dialog>
           )}
         </main>
       </div>

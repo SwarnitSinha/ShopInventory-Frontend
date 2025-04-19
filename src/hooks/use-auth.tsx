@@ -42,9 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: async() =>{
       if (!token) return null;
 
-      const res = await fetch("http://localhost:5000/api/auth/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiRequest("GET", "/api/auth/user", undefined, token);
 
       if (!res.ok) {
         localStorage.removeItem("token"); // Remove invalid token
@@ -58,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "http://localhost:5000/api/auth/login", credentials);
+      const res = await apiRequest("POST", "/api/auth/login", credentials);
       const data = await res.json();
       
       if (data.token) {

@@ -13,12 +13,14 @@ import Buyers from "./pages/buyers";
 import Towns from "./pages/towns";
 import React from "react"
 import BillGeneratePage from "./pages/bill-generate-page";
+import LandingPage from "./pages/landing-page";
 
 function Router() {
   return (
     <Switch>
       <Route path="/auth" component={AuthPage} />
-      <ProtectedRoute path="/" component={Dashboard} />
+      <Route path="/" component={LandingPage} />
+      <ProtectedRoute path="/dashboard" component={Dashboard} />
       <ProtectedRoute path="/products" component={Products} />
       <ProtectedRoute path="/sales" component={Sales} />
       <ProtectedRoute path="/bill-generate" component={BillGeneratePage} />
