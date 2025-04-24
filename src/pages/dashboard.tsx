@@ -5,11 +5,17 @@ import { useQuery } from "@tanstack/react-query";
 import { Package, IndianRupeeIcon, ShoppingCart } from "lucide-react";
 import type { Product } from "../types";
 import { Layout } from "../components/layout/layout";
+import { apiRequest } from "@/lib/queryClient";
+import { getImageUrl } from "@/lib/utils";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { data: products } = useQuery<Product[]>({ 
-    queryKey: ["/api/products"]
+    queryKey: ["/api/products"],
+    queryFn: async ()=>{
+      const response = await apiRequest("GET","/api/products");
+      return response.json();
+    },
   });
 
   const metrics = [
@@ -17,11 +23,17 @@ export default function Dashboard() {
       title: "Total Products",
       icon: Package,
       value: products?.length || 0,
+      onClick: () => {
+        console.log("TOTAL CLICKED");
+        window.location.href = "/products";
+      }, 
     },
     {
       title: "Low Stock Items",
       icon: ShoppingCart,
       value: products?.filter((p) => p.quantity < 10).length || 0,
+      onClick: () => {window.location.href = "/products?filter=low-stock";}, 
+
     },
     {
       title: "Total Inventory Value",
@@ -54,7 +66,10 @@ export default function Dashboard() {
             {metrics.map((metric) => {
               const Icon = metric.icon;
               return (
-                <Card key={metric.title} className="transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer">
+                <Card 
+                key={metric.title} 
+                onClick={metric.onClick}
+                className="transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       {metric.title}
@@ -83,7 +98,7 @@ export default function Dashboard() {
                     >
                       <div className="flex items-center space-x-4">
                         <img
-                          src={product.imageUrl}
+                          src={getImageUrl(product.imageUrl)}
                           alt={product.name}
                           className="h-10 w-10 rounded-full object-cover"
                         />
@@ -94,11 +109,9 @@ export default function Dashboard() {
                           </p>
                         </div>
                       </div>
-                      {user?.role === "admin" && (
                         <p className="font-medium">
                           {"\u20B9"}{Number(product.purchasePrice).toFixed(2)}
                         </p>
-                      )}
                     </div>
                   ))}
                 </div>

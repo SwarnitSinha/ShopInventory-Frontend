@@ -22,9 +22,10 @@ export async function apiRequest(
   if (!isFormData) {
     headers.append('Content-Type', 'application/json');
   }
+  const tokenInLocal = localStorage.getItem("token");
 
-  if (token) {
-    headers.append('Authorization', `Bearer ${token}`);
+  if (tokenInLocal) {
+    headers.append('Authorization', `Bearer ${tokenInLocal}`);
   }
 
   const body = isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined;

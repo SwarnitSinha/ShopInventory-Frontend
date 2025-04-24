@@ -456,12 +456,20 @@ useEffect(() => {
       <Dialog open={isBuyerModalOpen} onOpenChange={setBuyerModalOpen}>
   <DialogContent className="sm:max-w-md">
     <BuyerForm
-      onClose={() => {
+      onClose={async () => {
         setBuyerModalOpen(false);
         // Refresh the buyers list
-        fetch("/api/buyers")
-          .then((res) => res.json())
-          .then((data) => setBuyers(data));
+        try {
+          const buyersResponse = await apiRequest("GET", "/api/buyers");
+          const buyersData = await buyersResponse.json();
+          setBuyers(buyersData);
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Failed to refresh buyers list",
+            variant: "destructive",
+          });
+        }
       }}
     />
   </DialogContent>

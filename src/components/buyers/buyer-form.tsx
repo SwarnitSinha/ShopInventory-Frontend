@@ -80,6 +80,8 @@ export function BuyerForm({ buyer, onClose }: { buyer?: Buyer; onClose?: () => v
     }
   }
 
+
+
   return (
     <Form {...form}>
       <DialogHeader>
@@ -135,7 +137,13 @@ export function BuyerForm({ buyer, onClose }: { buyer?: Buyer; onClose?: () => v
             <FormItem>
               <FormLabel>Town</FormLabel>
               <Select 
-                onValueChange={field.onChange} 
+                onValueChange={(value) => {
+                  if (value === "no-towns") {
+                    window.location.href = "/towns"; // Call the noTowns function when "no-towns" is selected
+                  } else {
+                    field.onChange(value); // Update the form field value for valid towns
+                  }
+                }}
                 defaultValue={field.value}
                 disabled={townsLoading}
               >
@@ -148,12 +156,17 @@ export function BuyerForm({ buyer, onClose }: { buyer?: Buyer; onClose?: () => v
                   {townsLoading ? (
                     <SelectItem value="loading" disabled>Loading towns...</SelectItem>
                   ) : (
+                    towns?.length === 0 ? (
+                      <SelectItem value="no-towns"><span className="text-blue-500 underline cursor-pointer">
+                      No towns available. Add Towns first!
+                    </span></SelectItem>
+                    ) : (
                     towns?.map((town) => (
                       <SelectItem key={town.id} value={town.id}>
                         {town.name}
                       </SelectItem>
                     ))
-                  )}
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />

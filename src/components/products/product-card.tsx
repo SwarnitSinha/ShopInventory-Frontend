@@ -37,8 +37,6 @@ export function ProductCard(
   console.log("Product ID:", product?.id); // Check if ID is undefined
   const { user } = useAuth();
   const { toast } = useToast();
-  const canSell = user?.role === "admin" || user?.role === "staff";
-  const canEdit = user?.role === "admin";
   const [sellDialogOpen, setSellDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -74,7 +72,6 @@ export function ProductCard(
 
         {/* Icons */}
         <div className="flex gap-2">
-          {canSell && (
             <Dialog open={sellDialogOpen} onOpenChange={setSellDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" title="Sell" onClick={() => window.location.href = "/bill-generate"}>
@@ -82,8 +79,6 @@ export function ProductCard(
                 </Button>
               </DialogTrigger>
             </Dialog>
-          )}
-          {canEdit && (
             <>
               <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogTrigger asChild>
@@ -132,7 +127,6 @@ export function ProductCard(
                 </AlertDialogContent>
               </AlertDialog>
             </>
-          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -146,11 +140,9 @@ export function ProductCard(
           <span className="text-sm font-medium">
             {product.quantity} in stock
           </span>
-          {canEdit && (
             <span className="text-sm font-medium">
               Cost: {"\u20B9"}{Number(product.purchasePrice).toFixed(2)}
             </span>
-          )}
         </div>
         <PricingTable product={product} />
       </CardContent>

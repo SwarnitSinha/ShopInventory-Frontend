@@ -14,6 +14,7 @@ import Towns from "./pages/towns";
 import React from "react"
 import BillGeneratePage from "./pages/bill-generate-page";
 import LandingPage from "./pages/landing-page";
+import Profile from "./pages/profile-page";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
       <ProtectedRoute path="/bill-generate" component={BillGeneratePage} />
       <ProtectedRoute path="/buyers" component={Buyers} />
       <ProtectedRoute path="/towns" component={Towns} />
+      <ProtectedRoute path="/profile" component={Profile} />
       <Route component={NotFound} />
     </Switch>
   );
