@@ -6,14 +6,17 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    define: {
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL), // 👈 this is key
+    },
     server: {
-        port: 3000, // Force Vite back to 3000
-        proxy: {
-          '/api': {
-            target: 'http://localhost:5000',
-            changeOrigin: true,
-          }
-        }
+      port: 3000,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5000',
+          changeOrigin: true,
+        },
+      },
     },
     resolve: {
       alias: {
