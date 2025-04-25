@@ -30,7 +30,12 @@ export async function apiRequest(
 
   const body = isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined;
 
-  const res = await fetch(url, {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const fullUrl = `${baseUrl}${url}`;
+
+  console.log("full URL", fullUrl);
+
+  const res = await fetch(fullUrl, {
     method,
     headers,
     body,
