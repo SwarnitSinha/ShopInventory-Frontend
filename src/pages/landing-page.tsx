@@ -1,7 +1,7 @@
 // landing-page.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import {AnalyticsSection } from '@/components/landingPage/analyticsSection';
-import TestimonialSection from '../components/landingPage/TestimonialSlider';
+import TestimonialSection from '../components/landingPage/testimonialSlider';
 import { HeroSection } from '@/components/landingPage/heroSection';
 import {ImageCarousel} from '@/components/landingPage/imageCarousel';
 import { FeatureCard } from '@/components/landingPage/featureCard';
