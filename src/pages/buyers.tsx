@@ -7,11 +7,17 @@ import type { Buyer } from "../types";
 import { Layout } from "../components/layout/layout";
 import { BuyerForm } from "../components/buyers/buyer-form";
 import { BuyerCard } from "../components/buyers/buyer-card";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Buyers() {
   const { user } = useAuth();
-  const { data: buyers } = useQuery<Buyer[]>({
+
+  const { data: buyers, isLoading, isError } = useQuery<Buyer[]>({
     queryKey: ["/api/buyers"],
+    queryFn: async ()=>{
+      const response = await apiRequest("GET", "/api/buyers");
+      return response.json();
+    },
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     staleTime: 0,
@@ -26,7 +32,14 @@ export default function Buyers() {
           </div>
 
           <div className="p-6">
+            {/* Loading and Error States */}
+            {isLoading && <p>Loading buyers...</p>}
+            {isError && <p className="text-red-500">Failed to load buyers.</p>}
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {buyers?.length === 0 && (
+                <p className="text-gray-500">No buyers found. Add your buyers!</p>
+              )}
               {buyers?.map((buyer) => (
                 <BuyerCard key={buyer.id} buyer={buyer} />
               ))}
@@ -34,7 +47,6 @@ export default function Buyers() {
           </div>
 
           {/* Floating Add Buyer Button */}
-          {user?.role === "admin" && (
             <Dialog>
               <DialogTrigger asChild>
                 <Button
@@ -49,9 +61,8 @@ export default function Buyers() {
                 <BuyerForm />
               </DialogContent>
             </Dialog>
-          )}
         </main>
-      </div>
+    </div>
     </Layout>
   );
 }

@@ -11,14 +11,22 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  token?: string | undefined,
 ): Promise<Response> {
   console.log(`API Request: ${method} ${url}`, data);
 
   // Determine headers and body based on the type of `data`
   const isFormData = data instanceof FormData;
-  const headers = isFormData
-    ? undefined // Let the browser set the Content-Type for FormData
-    : { "Content-Type": "application/json" };
+  const headers = new Headers();
+
+  if (!isFormData) {
+    headers.append('Content-Type', 'application/json');
+  }
+  const tokenInLocal = localStorage.getItem("token");
+
+  if (tokenInLocal) {
+    headers.append('Authorization', `Bearer ${tokenInLocal}`);
+  }
 
   const body = isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined;
 

@@ -8,11 +8,16 @@ import { Dialog, DialogTrigger, DialogContent } from "../components/ui/dialog";
 import { useAuth } from "../hooks/use-auth";
 import type { Town } from "../types";
 import { Layout } from "../components/layout/layout";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Towns() {
   const { user } = useAuth();
   const { data: towns } = useQuery<Town[]>({
     queryKey: ["/api/towns"],
+    queryFn: async ()=>{
+          const response = await apiRequest("GET", "/api/towns");
+          return response.json();
+        },
   });
 
   return (
@@ -25,6 +30,9 @@ export default function Towns() {
 
           <div className="p-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {towns?.length === 0 && (
+                <div className="text-center text-gray-500">No towns available. Add Towns!</div>
+              )}
               {towns?.map((town) => (
                 <TownCard key={town.id} town={town} />
               ))}
@@ -32,7 +40,6 @@ export default function Towns() {
           </div>
 
           {/* Floating Add Town Button */}
-          {user?.role === "admin" && (
             <Dialog>
               <DialogTrigger asChild>
               <Button
@@ -47,7 +54,6 @@ export default function Towns() {
                 <TownForm />
               </DialogContent>
             </Dialog>
-          )}
         </main>
       </div>
     </Layout>

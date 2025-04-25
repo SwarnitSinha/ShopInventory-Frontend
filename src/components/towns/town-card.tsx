@@ -23,7 +23,6 @@ import type { Town } from "../../types";
 export function TownCard({ town }: { town: Town }) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const canEdit = user?.role === "admin";
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -52,7 +51,6 @@ export function TownCard({ town }: { town: Town }) {
       <CardHeader className="space-y-0">
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg">{town.name}</CardTitle>
-          {canEdit && (
             <div className="flex gap-2">
               <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogTrigger asChild>
@@ -94,7 +92,6 @@ export function TownCard({ town }: { town: Town }) {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
