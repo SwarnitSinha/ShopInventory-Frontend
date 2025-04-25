@@ -23,7 +23,6 @@ import type { Buyer } from "../../types";
 export function BuyerCard({ buyer }: { buyer: Buyer }) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const canEdit = user?.role === "admin";
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -52,7 +51,6 @@ export function BuyerCard({ buyer }: { buyer: Buyer }) {
       <CardHeader className="space-y-0">
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg">{buyer.name}</CardTitle>
-          {canEdit && (
             <div className="flex gap-2">
               <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogTrigger asChild>
@@ -94,12 +92,10 @@ export function BuyerCard({ buyer }: { buyer: Buyer }) {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">Type: {buyer.type}</p>
-        {/* <p className="text-sm text-muted-foreground">Town: {buyer.town.name}</p> */}
+        <p className="text-sm text-muted-foreground flex justify-between"><span>{buyer.type.toLocaleUpperCase()}</span><span> {buyer.town?.name}</span></p>
       </CardContent>
     </Card>
   );

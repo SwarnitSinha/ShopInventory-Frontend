@@ -1,22 +1,18 @@
-
-export const UserRole = {
-        ADMIN: 'admin',
-        STAFF: 'staff',
-        TECHNICIAN: 'technician'
-} as const;
-
-export type UserRoleType = typeof UserRole[keyof typeof UserRole];
-
-export type User = {
+export type Shop = {
         id: string;
         username: string;
         password: string;
-        role: UserRoleType;
+        shopName: string;
+        ownerName: string;
+        phone: string;
+        description: string;
+        address: string;
+        email: string;
 }
 
 export type Product = {
         id: string;
-        _id: string;
+        _id?: string;
         name: string;
         description: string;
         imageUrl?: any;

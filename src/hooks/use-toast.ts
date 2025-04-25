@@ -140,14 +140,26 @@ function dispatch(action: Action) {
 type Toast = Omit<ToasterToast, "id">
 
 function toast({ ...props }: Toast) {
-  const id = genId()
+  const id = genId();
 
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
       toast: { ...props, id },
-    })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+    });
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id });
+
+  // Dynamically set the position based on screen size
+  const isSmallScreen = window.innerWidth < 640; // Small screen breakpoint (e.g., 640px)
+  const positionStyle: React.CSSProperties = {
+    bottom: "1rem", // Bottom for small screens
+    right: isSmallScreen ? "50%" : "1rem", // Center for small screens, right for large screens
+    transform: isSmallScreen ? "translateX(50%)" : "none", // Center alignment for small screens
+    position: "fixed",
+    zIndex: 50,
+    minWidth: "30%", // Minimum width of 30%
+    maxWidth: isSmallScreen ? "90%" : "400px",
+  };
 
   dispatch({
     type: "ADD_TOAST",
@@ -156,16 +168,17 @@ function toast({ ...props }: Toast) {
       id,
       open: true,
       onOpenChange: (open) => {
-        if (!open) dismiss()
+        if (!open) dismiss();
       },
+      style: positionStyle, // Apply the dynamic position style
     },
-  })
+  });
 
   return {
     id: id,
     dismiss,
     update,
-  }
+  };
 }
 
 function useToast() {

@@ -291,29 +291,15 @@ useEffect(() => {
             {fields.map((field, index) => (
               <tr key={field.id} className="border-t">
                 <td className="px-4 py-2">
+                <div className="flex items-center justify-between gap-2">
                   <Select
                     onValueChange={(value) => {
-                      form.setValue(`products.${index}.product`, value, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
+                      form.setValue(`products.${index}.product`, value, {shouldValidate: true,shouldDirty: true,});
                       const selected = products.find((p) => p.id === value);
                       if (selected) {
-                        form.setValue(
-                          `products.${index}.pricePerUnit`,
-                          Number(selected.regularPrice),
-                          { shouldValidate: true, shouldDirty: true }
-                        );
-                        form.setValue(
-                          `products.${index}.quantity`,
-                          1,
-                          { shouldValidate: true, shouldDirty: true }
-                        );
-                        form.setValue(
-                          `products.${index}.totalAmount`,
-                          Number(selected.regularPrice),
-                          { shouldValidate: true, shouldDirty: true }
-                        );
+                        form.setValue(`products.${index}.pricePerUnit`,Number(selected.regularPrice),{ shouldValidate: true, shouldDirty: true, });
+                        form.setValue(`products.${index}.quantity`,1,{ shouldValidate: true, shouldDirty: true, });
+                        form.setValue(`products.${index}.totalAmount`, Number(selected.regularPrice), {shouldValidate: true, shouldDirty: true, });
                       }
                     }}
                     value={form.watch(`products.${index}.product`) || ""}
@@ -329,6 +315,19 @@ useEffect(() => {
                       ))}
                     </SelectContent>
                   </Select>
+
+                  {/* Show available quantity here */}
+                  {(()=>{
+                    const selectedId = form.watch(`products.${index}.product`)
+                    const selectedProduct = products.find((p) => p.id === selectedId);
+                    return selectedProduct ? (
+                      <span className="text-xs text-gray-500 min-w-[20px] text-right">
+                        {selectedProduct.quantity}
+                      </span>
+                    ) : null;
+                  })()}
+                </div>
+                  {/* Error message */}
                   {form.formState.errors.products?.[index]?.product && (
                     <p className="text-red-500 text-sm">
                       {form.formState.errors.products[index]?.product?.message}
@@ -354,6 +353,20 @@ useEffect(() => {
                       });
                     }}
                   />
+                  {(() => {
+      const selectedId = form.watch(`products.${index}.product`);
+      const selectedProduct = products.find((p) => p.id === selectedId);
+      const inputQuantity = form.watch(`products.${index}.quantity`) || 0;
+      
+      if (selectedProduct && inputQuantity > selectedProduct.quantity) {
+        return (
+          <span className="text-xs text-red-500">
+            Only {selectedProduct.quantity} available in stock
+          </span>
+        );
+      }
+      return null;
+    })()}
                 </td>
   
                 <td className="px-4 py-2">
@@ -443,12 +456,20 @@ useEffect(() => {
       <Dialog open={isBuyerModalOpen} onOpenChange={setBuyerModalOpen}>
   <DialogContent className="sm:max-w-md">
     <BuyerForm
-      onClose={() => {
+      onClose={async () => {
         setBuyerModalOpen(false);
         // Refresh the buyers list
-        fetch("/api/buyers")
-          .then((res) => res.json())
-          .then((data) => setBuyers(data));
+        try {
+          const buyersResponse = await apiRequest("GET", "/api/buyers");
+          const buyersData = await buyersResponse.json();
+          setBuyers(buyersData);
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Failed to refresh buyers list",
+            variant: "destructive",
+          });
+        }
       }}
     />
   </DialogContent>

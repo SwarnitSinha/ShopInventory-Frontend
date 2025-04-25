@@ -52,7 +52,7 @@ export default function Sales() {
   async function fetchInitialSales() {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/sales?page=1&limit=100");
+      const response = await apiRequest("GET","/api/sales?page=1&limit=100");
       if (!response.ok) {
         throw new Error("Failed to fetch initial sales");
       }
@@ -87,7 +87,7 @@ export default function Sales() {
       const queryParams = new URLSearchParams(filters as Record<string, string>);
       console.log("Filters being sent to API:", queryParams.toString()); // Debugging
 
-      const response = await fetch(`/api/sales/filter?${queryParams.toString()}`);
+      const response = await apiRequest('GET',`/api/sales/filter?${queryParams.toString()}`);
       console.log("API Response Status:", response.status); // Debugging
       console.log("API Response OK:", response.ok); // Debugging
 

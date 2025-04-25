@@ -19,7 +19,15 @@ import { apiRequest, queryClient } from "../../lib/queryClient";
 import { DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Loader2 } from "lucide-react";
 
-export function ProductForm({ product, onClose }: { product?: Product; onClose?: () => void }) {
+export function ProductForm({ 
+  product, 
+  onClose,
+  onActionComplete,
+}: { 
+  product?: Product; 
+  onClose?: () => void;
+  onActionComplete: () =>void;
+ }) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<ProductFormData>({
@@ -78,6 +86,8 @@ export function ProductForm({ product, onClose }: { product?: Product; onClose?:
       });
 
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      if (onActionComplete) onActionComplete(); 
+
       if (onClose) onClose();
     } catch (error) {
       toast({
