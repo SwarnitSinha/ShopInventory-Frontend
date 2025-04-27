@@ -34,19 +34,19 @@ export function SellProductForm({
     defaultValues: {
       products: sale
         ? sale.products.map((p) => ({
-            product: p.product.id,
-            quantity: p.quantity,
-            pricePerUnit: p.pricePerUnit,
-            totalAmount: p.totalAmount,
-          }))
+          product: p.product.id,
+          quantity: p.quantity,
+          pricePerUnit: p.pricePerUnit,
+          totalAmount: p.totalAmount,
+        }))
         : [
-            {
-              product: "",
-              quantity: 1,
-              pricePerUnit: 0,
-              totalAmount: 0,
-            }
-          ],
+          {
+            product: "",
+            quantity: 1,
+            pricePerUnit: 0,
+            totalAmount: 0,
+          }
+        ],
       // buyer: sale?.buyer?.id || "",
       buyer: "swarnit",
       amountPaid: sale?.amountPaid || 0,
@@ -55,7 +55,7 @@ export function SellProductForm({
       grandTotal: sale?.grandTotal || 0,
     },
   });
-  const [buyer, setBuyer] = useState(form.watch("buyer") || ""); 
+  const [buyer, setBuyer] = useState(form.watch("buyer") || "");
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "products",
@@ -74,47 +74,47 @@ export function SellProductForm({
   }, [sale, form]);
 
   useEffect(() => {
-  async function fetchData() {
-    try {
-      const buyersResponse = await apiRequest("GET", "/api/buyers");
-      const buyersData = await buyersResponse.json();
-      setBuyers(buyersData);
+    async function fetchData() {
+      try {
+        const buyersResponse = await apiRequest("GET", "/api/buyers");
+        const buyersData = await buyersResponse.json();
+        setBuyers(buyersData);
 
-      const productsResponse = await apiRequest("GET", "/api/products");
-      const productsData = await productsResponse.json();
-      setProducts(productsData);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load buyers or products",
-        variant: "destructive",
+        const productsResponse = await apiRequest("GET", "/api/products");
+        const productsData = await productsResponse.json();
+        setProducts(productsData);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load buyers or products",
+          variant: "destructive",
+        });
+      }
+    }
+
+    fetchData();
+  }, [toast]);
+
+  useEffect(() => {
+    if (sale && buyers.length > 0 && products.length > 0) {
+      console.log("Setting form values from sale:", sale);
+
+      form.reset({
+        _id: sale._id || "",
+        products: sale.products.map((p) => ({
+          product: p.product?._id || "",
+          quantity: p.quantity,
+          pricePerUnit: p.pricePerUnit,
+          totalAmount: p.totalAmount,
+        })),
+        buyer: sale.buyer?._id || "", // Extract the buyer ID correctly
+        amountPaid: sale.amountPaid || 0,
+        status: sale.status || "due",
+        saleDate: sale.saleDate ? new Date(sale.saleDate) : new Date(),
+        grandTotal: sale.grandTotal || 0,
       });
     }
-  }
-
-  fetchData();
-}, [toast]);
-
-useEffect(() => {
-  if (sale && buyers.length > 0 && products.length > 0) {
-    console.log("Setting form values from sale:", sale);
-
-    form.reset({
-      _id: sale._id || "",
-      products: sale.products.map((p) => ({
-        product: p.product?._id || "",
-        quantity: p.quantity,
-        pricePerUnit: p.pricePerUnit,
-        totalAmount: p.totalAmount,
-      })),
-      buyer: sale.buyer?._id || "", // Extract the buyer ID correctly
-      amountPaid: sale.amountPaid || 0,
-      status: sale.status || "due",
-      saleDate: sale.saleDate ? new Date(sale.saleDate) : new Date(),
-      grandTotal: sale.grandTotal || 0,
-    });
-  }
-}, [sale, buyers, products, form]);
+  }, [sale, buyers, products, form]);
 
   const calculateTotal = () => {
     const products = form.getValues("products");
@@ -141,27 +141,27 @@ useEffect(() => {
       grandTotal, // Add grand total to the submission data
       status,
     };
-  
+
     console.log("Validated Form Data:", validatedData);
     console.log("ID Data:", data._id);
-  
+
     setIsSubmitting(true);
     try {
       const response = data._id
-      ? await apiRequest("PATCH", `/api/sales/${data._id}`, validatedData) // ✅ Update sale if _id exists
-      : await apiRequest("POST", "/api/sales", validatedData);
-      
-      data._id? 
-      toast({
-        title: "Bill Updated",
-        description: "The sale has been updated successfully",
-      }) 
-      :
-      toast({
-        title: "Sale completed",
-        description: "The sale has been recorded successfully",
-      });
-  
+        ? await apiRequest("PATCH", `/api/sales/${data._id}`, validatedData) // ✅ Update sale if _id exists
+        : await apiRequest("POST", "/api/sales", validatedData);
+
+      data._id ?
+        toast({
+          title: "Bill Updated",
+          description: "The sale has been updated successfully",
+        })
+        :
+        toast({
+          title: "Sale completed",
+          description: "The sale has been recorded successfully",
+        });
+
       form.reset()
       // if (onSubmit) {
       //   onSubmit(validatedData);
@@ -174,7 +174,7 @@ useEffect(() => {
       });
     } finally {
       setIsSubmitting(false);
-      if(onClose) {
+      if (onClose) {
         onClose(); // Close the form after submission
       }
     }
@@ -193,43 +193,43 @@ useEffect(() => {
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium">Buyer:</label>
           <Select
-  value={buyer}
-  onValueChange={(value) => {
-    if (value === "new") {
-      setBuyerModalOpen(true);
-    } else {
-      setBuyer(value);
-      form.setValue("buyer", value, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  }}
->
-  <SelectTrigger className="w-full">
-    <SelectValue placeholder="Select a buyer" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="__placeholder__" disabled>
-      Select a buyer
-    </SelectItem>
-    {buyers.map((buyer) => (
-      <SelectItem key={buyer.id} value={buyer.id}>
-        {buyer.name} - {buyer.town?.name}
-      </SelectItem>
-    ))}
-    <SelectItem value="new" className="text-primary font-semibold">
-      ➕ New Buyer
-    </SelectItem>
-  </SelectContent>
-</Select>
+            value={buyer}
+            onValueChange={(value) => {
+              if (value === "new") {
+                setBuyerModalOpen(true);
+              } else {
+                setBuyer(value);
+                form.setValue("buyer", value, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a buyer" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__placeholder__" disabled>
+                Select a buyer
+              </SelectItem>
+              {buyers.map((buyer) => (
+                <SelectItem key={buyer.id} value={buyer.id}>
+                  {buyer.name} - {buyer.town?.name}
+                </SelectItem>
+              ))}
+              <SelectItem value="new" className="text-primary font-semibold">
+                ➕ New Buyer
+              </SelectItem>
+            </SelectContent>
+          </Select>
           {form.formState.errors.buyer && (
             <p className="text-red-500 text-sm">
               {form.formState.errors.buyer.message}
             </p>
           )}
         </div>
-  
+
         {/* Sale Date */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium">Sale Date:</label>
@@ -251,7 +251,7 @@ useEffect(() => {
           />
         </div>
       </div>
-  
+
       {/* Add Product Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Products</h2>
@@ -274,7 +274,7 @@ useEffect(() => {
           </span>
         </Button>
       </div>
-  
+
       {/* Products Table */}
       <div className="overflow-x-auto rounded-lg border border-gray-300">
         <table className="min-w-full border-collapse">
@@ -291,42 +291,42 @@ useEffect(() => {
             {fields.map((field, index) => (
               <tr key={field.id} className="border-t">
                 <td className="px-4 py-2">
-                <div className="flex items-center justify-between gap-2">
-                  <Select
-                    onValueChange={(value) => {
-                      form.setValue(`products.${index}.product`, value, {shouldValidate: true,shouldDirty: true,});
-                      const selected = products.find((p) => p.id === value);
-                      if (selected) {
-                        form.setValue(`products.${index}.pricePerUnit`,Number(selected.regularPrice),{ shouldValidate: true, shouldDirty: true, });
-                        form.setValue(`products.${index}.quantity`,1,{ shouldValidate: true, shouldDirty: true, });
-                        form.setValue(`products.${index}.totalAmount`, Number(selected.regularPrice), {shouldValidate: true, shouldDirty: true, });
-                      }
-                    }}
-                    value={form.watch(`products.${index}.product`) || ""}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a product" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products.map((product) => (
-                        <SelectItem key={product.id} value={product.id}>
-                          {product.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center justify-between gap-2">
+                    <Select
+                      onValueChange={(value) => {
+                        form.setValue(`products.${index}.product`, value, { shouldValidate: true, shouldDirty: true, });
+                        const selected = products.find((p) => p.id === value);
+                        if (selected) {
+                          form.setValue(`products.${index}.pricePerUnit`, Number(selected.regularPrice), { shouldValidate: true, shouldDirty: true, });
+                          form.setValue(`products.${index}.quantity`, 1, { shouldValidate: true, shouldDirty: true, });
+                          form.setValue(`products.${index}.totalAmount`, Number(selected.regularPrice), { shouldValidate: true, shouldDirty: true, });
+                        }
+                      }}
+                      value={form.watch(`products.${index}.product`) || ""}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a product" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                  {/* Show available quantity here */}
-                  {(()=>{
-                    const selectedId = form.watch(`products.${index}.product`)
-                    const selectedProduct = products.find((p) => p.id === selectedId);
-                    return selectedProduct ? (
-                      <span className="text-xs text-gray-500 min-w-[20px] text-right">
-                        {selectedProduct.quantity}
-                      </span>
-                    ) : null;
-                  })()}
-                </div>
+                    {/* Show available quantity here */}
+                    {(() => {
+                      const selectedId = form.watch(`products.${index}.product`)
+                      const selectedProduct = products.find((p) => p.id === selectedId);
+                      return selectedProduct ? (
+                        <span className="text-xs text-gray-500 min-w-[20px] text-right">
+                          {selectedProduct.quantity}
+                        </span>
+                      ) : null;
+                    })()}
+                  </div>
                   {/* Error message */}
                   {form.formState.errors.products?.[index]?.product && (
                     <p className="text-red-500 text-sm">
@@ -334,7 +334,7 @@ useEffect(() => {
                     </p>
                   )}
                 </td>
-  
+
                 <td className="px-4 py-2">
                   <Input
                     type="number"
@@ -352,48 +352,47 @@ useEffect(() => {
                         shouldDirty: true,
                       });
                     }}
+                    className="min-w-[70px]" // Minimum width set to 120px
                   />
                   {(() => {
-      const selectedId = form.watch(`products.${index}.product`);
-      const selectedProduct = products.find((p) => p.id === selectedId);
-      const inputQuantity = form.watch(`products.${index}.quantity`) || 0;
-      
-      if (selectedProduct && inputQuantity > selectedProduct.quantity) {
-        return (
-          <span className="text-xs text-red-500">
-            Only {selectedProduct.quantity} available in stock
-          </span>
-        );
-      }
-      return null;
-    })()}
+                    const selectedId = form.watch(`products.${index}.product`);
+                    const selectedProduct = products.find((p) => p.id === selectedId);
+                    const inputQuantity = form.watch(`products.${index}.quantity`) || 0;
+
+                    if (selectedProduct && inputQuantity > selectedProduct.quantity) {
+                      return (
+                        <span className="text-xs text-red-500">
+                          Only {selectedProduct.quantity} available in stock
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </td>
-  
+
                 <td className="px-4 py-2">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...form.register(`products.${index}.pricePerUnit`, {
-                      valueAsNumber: true,
-                    })}
-                    onChange={(e) => {
-                      const price = parseFloat(e.target.value) || 0;
-                      const quantity = form.getValues(
-                        `products.${index}.quantity`
-                      );
-                      form.setValue(
-                        `products.${index}.totalAmount`,
-                        quantity * price,
-                        { shouldValidate: true, shouldDirty: true }
-                      );
-                    }}
-                  />
-                </td>
-  
+  <Input
+    type="number"
+    step="0.01"
+    {...form.register(`products.${index}.pricePerUnit`, {
+      valueAsNumber: true,
+    })}
+    onChange={(e) => {
+      const price = parseFloat(e.target.value) || 0;
+      const quantity = form.getValues(`products.${index}.quantity`);
+      form.setValue(
+        `products.${index}.totalAmount`,
+        quantity * price,
+        { shouldValidate: true, shouldDirty: true }
+      );
+    }}
+    className="min-w-[70px]"  // Minimum width set to 120px
+  />
+</td>
                 <td className="px-4 py-2 font-medium">
                   ₹{form.watch(`products.${index}.totalAmount`)?.toFixed(2) || "0.00"}
                 </td>
-  
+
                 <td className="px-4 py-2 text-center">
                   <Button
                     variant="ghost"
@@ -409,13 +408,13 @@ useEffect(() => {
           </tbody>
         </table>
       </div>
-  
+
       {/* Totals and Payment */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
         <div className="text-lg font-semibold">
           Grand Total: ₹{new Intl.NumberFormat("en-IN").format(calculateGrandTotal())}
         </div>
-  
+
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium">Amount Paid:</label>
           <Input
@@ -438,45 +437,44 @@ useEffect(() => {
             </p>
           )}
         </div>
-  
+
         <div
-          className={`text-lg font-semibold ${
-            calculateDues() === 0 ? "text-green-600" : "text-red-500"
-          }`}
+          className={`text-lg font-semibold ${calculateDues() === 0 ? "text-green-600" : "text-red-500"
+            }`}
         >
           Dues: ₹{new Intl.NumberFormat("en-IN").format(calculateDues())}
         </div>
       </div>
-  
+
       {/* Submit Button */}
       <Button disabled={isSubmitting} type="submit" className="w-full mt-4">
         {isSubmitting ? "Processing..." : "Complete Sale"}
       </Button>
 
       <Dialog open={isBuyerModalOpen} onOpenChange={setBuyerModalOpen}>
-  <DialogContent className="sm:max-w-md">
-    <BuyerForm
-      onClose={async () => {
-        setBuyerModalOpen(false);
-        // Refresh the buyers list
-        try {
-          const buyersResponse = await apiRequest("GET", "/api/buyers");
-          const buyersData = await buyersResponse.json();
-          setBuyers(buyersData);
-        } catch (error) {
-          toast({
-            title: "Error",
-            description: "Failed to refresh buyers list",
-            variant: "destructive",
-          });
-        }
-      }}
-    />
-  </DialogContent>
-</Dialog>
+        <DialogContent className="sm:max-w-md">
+          <BuyerForm
+            onClose={async () => {
+              setBuyerModalOpen(false);
+              // Refresh the buyers list
+              try {
+                const buyersResponse = await apiRequest("GET", "/api/buyers");
+                const buyersData = await buyersResponse.json();
+                setBuyers(buyersData);
+              } catch (error) {
+                toast({
+                  title: "Error",
+                  description: "Failed to refresh buyers list",
+                  variant: "destructive",
+                });
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
     </form>
 
-    
+
   );
 }

@@ -18,6 +18,7 @@ export default function Products() {
   const [products, setProducts] = useState<Product[] | null>(null); // State for products
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
+  const [addDialogOpen, setAddDialogOpen] = useState(false); // 👈 create a state
 
 
   // Parse query parameters from the URL
@@ -165,7 +166,7 @@ export default function Products() {
           </div>
 
           {/* Floating Add Product Button */}
-          <Dialog>
+          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
               <Button
                 size="lg"
@@ -177,7 +178,11 @@ export default function Products() {
             </DialogTrigger>
             <DialogContent>
               <ProductForm
-                onActionComplete={() => fetchProducts(searchQuery)}
+                onClose={() => setAddDialogOpen(false)}
+                onActionComplete={() => {
+                  fetchProducts(searchQuery)
+                  setAddDialogOpen(false);
+                }}
               />
             </DialogContent>
           </Dialog>

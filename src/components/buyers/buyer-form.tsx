@@ -26,7 +26,15 @@ import { DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import { useTown } from "../../hooks/use-town";
 
-export function BuyerForm({ buyer, onClose }: { buyer?: Buyer; onClose?: () => void }) {
+export function BuyerForm({
+  buyer,
+  onClose,
+  onActionComplete, // Accept onActionComplete as a prop
+}: {
+  buyer?: Buyer;
+  onClose?: () => void;
+  onActionComplete?: () => void; // Define onActionComplete type
+}) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { towns, townsLoading } = useTown();
@@ -68,7 +76,9 @@ export function BuyerForm({ buyer, onClose }: { buyer?: Buyer; onClose?: () => v
         });
       }
       queryClient.invalidateQueries({ queryKey: ["/api/buyers"] });
-      if (onClose) onClose();
+
+      if (onActionComplete) onActionComplete(); // Call onActionComplete after successful action
+      if (onClose) onClose(); // Close the dialog after submission
     } catch (error) {
       toast({
         title: "Error",
@@ -79,8 +89,6 @@ export function BuyerForm({ buyer, onClose }: { buyer?: Buyer; onClose?: () => v
       setIsSubmitting(false);
     }
   }
-
-
 
   return (
     <Form {...form}>
@@ -166,7 +174,7 @@ export function BuyerForm({ buyer, onClose }: { buyer?: Buyer; onClose?: () => v
                         {town.name}
                       </SelectItem>
                     ))
-                  ))}
+                  )) }
                 </SelectContent>
               </Select>
               <FormMessage />
