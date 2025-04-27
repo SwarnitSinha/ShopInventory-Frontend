@@ -7,10 +7,13 @@ import type { Buyer } from "../types";
 import { Layout } from "../components/layout/layout";
 import { BuyerForm } from "../components/buyers/buyer-form";
 import { BuyerCard } from "../components/buyers/buyer-card";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest,queryClient } from "@/lib/queryClient";
+import { useState } from "react";
+
 
 export default function Buyers() {
   const { user } = useAuth();
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const { data: buyers, isLoading, isError } = useQuery<Buyer[]>({
     queryKey: ["/api/buyers"],
@@ -47,20 +50,26 @@ export default function Buyers() {
           </div>
 
           {/* Floating Add Buyer Button */}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  size="lg"
-                  className="fixed bottom-4 right-4 bg-primary text-white shadow-lg rounded-full p-4 md:p-3"
-                >
-                  <Plus className="h-5 w-5 mr-1" />
-                  Add Buyer
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <BuyerForm />
-              </DialogContent>
-            </Dialog>
+          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                size="lg"
+                className="fixed bottom-4 right-4 bg-primary text-white shadow-lg rounded-full p-4 md:p-3"
+              >
+                <Plus className="h-5 w-5 mr-1" />
+                Add Buyer
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <BuyerForm
+                onClose={() => setAddDialogOpen(false)}
+                onActionComplete={() => {
+                  queryClient.invalidateQueries({ queryKey: ["/api/buyers"] });
+                  setAddDialogOpen(false); 
+                }}
+              />
+            </DialogContent>
+          </Dialog>
         </main>
     </div>
     </Layout>

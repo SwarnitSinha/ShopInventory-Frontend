@@ -1,7 +1,7 @@
 import { SidebarNav } from "../components/layout/sidebar-nav";
 import { Button } from "../components/ui/button";
 import { Plus } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TownCard } from "../components/towns/town-card";
 import { TownForm } from "../components/towns/town-form";
 import { Dialog, DialogTrigger, DialogContent } from "../components/ui/dialog";
@@ -9,9 +9,13 @@ import { useAuth } from "../hooks/use-auth";
 import type { Town } from "../types";
 import { Layout } from "../components/layout/layout";
 import { apiRequest } from "@/lib/queryClient";
+import { useState } from "react";
 
 export default function Towns() {
   const { user } = useAuth();
+    const [addDialogOpen, setAddDialogOpen] = useState(false);
+    const queryClient = useQueryClient(); 
+    
   const { data: towns } = useQuery<Town[]>({
     queryKey: ["/api/towns"],
     queryFn: async ()=>{
@@ -40,7 +44,7 @@ export default function Towns() {
           </div>
 
           {/* Floating Add Town Button */}
-            <Dialog>
+            <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
               <DialogTrigger asChild>
               <Button
                 size="lg"
@@ -51,7 +55,13 @@ export default function Towns() {
               </Button>
               </DialogTrigger>
               <DialogContent>
-                <TownForm />
+                <TownForm 
+                onClose={() => setAddDialogOpen(false)}
+                onActionComplete={() => {
+                  queryClient.invalidateQueries({ queryKey: ["/api/towns"] });
+                  setAddDialogOpen(false);
+                }}
+                />
               </DialogContent>
             </Dialog>
         </main>

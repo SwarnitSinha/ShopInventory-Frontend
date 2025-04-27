@@ -112,7 +112,7 @@ export function ProductForm({
   className="space-y-4 py-4"
 >
   {/* Line 1: Name and Image */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div className="grid grid-cols-2 gap-4">
     <FormField
       control={form.control}
       name="name"
@@ -166,7 +166,7 @@ export function ProductForm({
   />
 
   {/* Line 3: Quantity and Purchase Price */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div className="grid grid-cols-2 gap-4">
     <FormField
       control={form.control}
       name="quantity"
@@ -205,7 +205,7 @@ export function ProductForm({
   </div>
 
   {/* Line 4: Regular Price and Bulk Price */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div className="grid grid-cols-2 gap-4">
     <FormField
       control={form.control}
       name="regularPrice"

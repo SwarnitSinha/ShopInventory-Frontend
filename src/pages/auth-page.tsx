@@ -235,23 +235,37 @@ const isVerified = await verifyOTP(email, otp);
                             )}
                           />
                           <FormField
-                            control={loginForm.control}
-                            name="password"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-gray-700">Password</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="password"
-                                    {...field}
-                                    className="py-6 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                                    placeholder="Enter your password"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+  control={loginForm.control}
+  name="password"
+  render={({ field }) => {
+    const [showPassword, setShowPassword] = React.useState(false);
+
+    return (
+      <FormItem className="relative">
+        <FormLabel className="text-gray-700">Password</FormLabel>
+        <FormControl>
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              {...field}
+              className="py-6 px-4 pr-12 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter your password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
+
                           <div className="flex justify-end mb-2">
                             <a href="#" className="text-sm text-blue-600 hover:text-blue-800">
                               Forgot password?
@@ -452,45 +466,56 @@ const isVerified = await verifyOTP(email, otp);
 
                             {/* Password */}
                             <FormField
-                              control={registerForm.control}
-                              name="password"
-                              render={({ field }) => {
-                                const strength = calculatePasswordStrength(field.value);
-                                return (
-                                  <FormItem>
-                                    <FormLabel className="text-gray-700">Password</FormLabel>
-                                    <FormControl>
-                                      <div className="space-y-2">
-                                        <Input
-                                          type="password"
-                                          {...field}
-                                          className="h-12 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                                          placeholder="Create a password"
-                                        />
-                                        <div className="flex items-center gap-2">
-                                          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                            <div
-                                              className={`h-full ${strength === 4 ? 'bg-green-500' :
-                                                strength === 3 ? 'bg-blue-500' :
-                                                  strength === 2 ? 'bg-yellow-500' :
-                                                    strength === 1 ? 'bg-orange-500' : 'bg-gray-300'}`}
-                                              style={{ width: `${(strength / 4) * 100}%` }}
-                                            />
-                                          </div>
-                                          <span className="text-xs font-medium">
-                                            {strength === 4 ? 'Strong' :
-                                              strength === 3 ? 'Good' :
-                                                strength === 2 ? 'Fair' :
-                                                  strength === 1 ? 'Weak' : ''}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                );
-                              }}
-                            />
+  control={registerForm.control}
+  name="password"
+  render={({ field }) => {
+    const [showPassword, setShowPassword] = React.useState(false);
+    const strength = calculatePasswordStrength(field.value);
+
+    return (
+      <FormItem className="relative">
+        <FormLabel className="text-gray-700">Password</FormLabel>
+        <FormControl>
+          <div className="space-y-2 relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              {...field}
+              className="h-12 px-4 pr-12 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Create a password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-3 text-gray-500 text-sm"
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+
+            <div className="flex items-center gap-2 pt-1">
+              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className={`h-full ${strength === 4 ? 'bg-green-500' :
+                    strength === 3 ? 'bg-blue-500' :
+                    strength === 2 ? 'bg-yellow-500' :
+                    strength === 1 ? 'bg-orange-500' : 'bg-gray-300'}`}
+                  style={{ width: `${(strength / 4) * 100}%` }}
+                />
+              </div>
+              <span className="text-xs font-medium">
+                {strength === 4 ? 'Strong' :
+                 strength === 3 ? 'Good' :
+                 strength === 2 ? 'Fair' :
+                 strength === 1 ? 'Weak' : ''}
+              </span>
+            </div>
+          </div>
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
+
                           </div>
 
                           {/* Submit Button - Full width */}

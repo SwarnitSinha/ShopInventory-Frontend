@@ -18,7 +18,15 @@ import { apiRequest, queryClient } from "../../lib/queryClient";
 import { DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Loader2 } from "lucide-react";
 
-export function TownForm({ town, onClose }: { town?: Town; onClose?: () => void }) {
+export function TownForm({
+  town,
+  onClose,
+  onActionComplete,  // Add this prop
+}: {
+  town?: Town;
+  onClose?: () => void;
+  onActionComplete?: () => void;  // Define the type for the onActionComplete function
+}) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,6 +61,8 @@ export function TownForm({ town, onClose }: { town?: Town; onClose?: () => void 
         });
       }
       queryClient.invalidateQueries({ queryKey: ["/api/towns"] });
+
+      if (onActionComplete) onActionComplete();  // Call onActionComplete if it is passed
       if (onClose) onClose();
     } catch (error) {
       toast({
