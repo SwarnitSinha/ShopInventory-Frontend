@@ -90,7 +90,10 @@ export function ProductCard(
                   <ProductForm
                     product={product}
                     onClose={() => setEditDialogOpen(false)}
-                    onActionComplete={onActionComplete}
+                    onActionComplete={()=>{
+                      onActionComplete();
+                      setEditDialogOpen(false);
+                    }}
                   />
                 </DialogContent>
               </Dialog>
