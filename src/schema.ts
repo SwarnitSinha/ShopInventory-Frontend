@@ -5,10 +5,10 @@ export const insertProductSchema = z.object({
         name: z.string().min(1, "Name is required"),
         description: z.string().min(1, "Description is required"),
         imageUrl: z.any().optional(), // Allow any type for the imageUrl field
-        quantity: z.number().min(0, "Quantity must be positive"),
-        purchasePrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
-        regularPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
-        bulkPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
+        quantity: z.number().min(0, "Quantity must be positive").optional(),
+        purchasePrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").optional(),
+        regularPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").optional(),
+        bulkPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").optional()
 });
 
 // Define the schema for a single product in the sale
