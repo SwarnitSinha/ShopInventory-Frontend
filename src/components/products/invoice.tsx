@@ -34,8 +34,9 @@ export function Invoice({ sale, products }: InvoiceProps) {
     <Card className="print:shadow-none w-full min-h-screen sm:max-w-4xl sm:mx-auto sm:my-6 sm:rounded-md sm:shadow-lg bg-white">
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4">
         <div>
-          <h1 className="text-2xl font-bold">Invoice</h1>
-          <p className="text-sm text-muted-foreground">Invoice #{sale.invoiceNumber}</p>
+        <h1 className="text-2xl font-bold">{localStorage.getItem("shopName")}</h1>
+          <span className="font-bold">Invoice</span>
+          <p className="text-sm text-muted-foreground">Invoice Number: {sale.invoiceNumber}</p>
         </div>
         <Button
           onClick={handlePrint}
