@@ -37,6 +37,12 @@ export default function Towns() {
               {towns?.length === 0 && (
                 <div className="text-center text-gray-500">No towns available. Add Towns!</div>
               )}
+
+<div className="md:hidden grid grid-cols-12 gap-2 p-3 border-b bg-gray-100 font-medium text-sm">
+  <div className="col-span-5 text-left">Town</div>
+  <div className="col-span-4 text-left">District</div>
+  <div className="col-span-3 text-center">Action</div>
+</div>
               {towns?.map((town) => (
                 <TownCard key={town.id} town={town} />
               ))}

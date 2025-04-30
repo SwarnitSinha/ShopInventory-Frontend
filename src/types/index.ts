@@ -16,10 +16,10 @@ export type Product = {
         name: string;
         description: string;
         imageUrl?: any;
-        quantity: number;
-        purchasePrice: string;
-        regularPrice: string;
-        bulkPrice: string;
+        quantity?: number;
+        purchasePrice?: string;
+        regularPrice?: string;
+        bulkPrice?: string;
 }
 
 export type ProductFormData = Omit<Product, "id">; // 🔹 Excludes `id`

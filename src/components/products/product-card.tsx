@@ -14,6 +14,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../components/ui/alert-dialog";
+
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
+
+
 import { ProductForm } from "./product-form";
 import { SellProductForm } from "./sell-product-form";
 import { useAuth } from "../../hooks/use-auth";
@@ -23,6 +33,8 @@ import type { Product } from "../../types";
 import { useState } from "react";
 import { API_BASE_URL } from "@/config";
 import { getImageUrl } from "@/lib/utils";
+
+
 
 export function ProductCard(
   { product,
@@ -39,6 +51,8 @@ export function ProductCard(
   const { toast } = useToast();
   const [sellDialogOpen, setSellDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -65,90 +79,154 @@ export function ProductCard(
   };
 
   return (
-    <Card className="transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer">
-      <CardHeader className="space-y-2"> {/* Added spacing between title and icons */}
-        {/* Title */}
-        <CardTitle className="text-lg">{product.name}</CardTitle>
-
-        {/* Icons */}
-        <div className="flex gap-2">
-            <Dialog open={sellDialogOpen} onOpenChange={setSellDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" title="Sell" onClick={() => window.location.href = "/bill-generate"}>
+    <>
+      <div className="hidden md:block">
+        <Card className="transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer">
+          <CardHeader className="space-y-2">
+            <div className="flex justify-between items-start">
+              <CardTitle className="text-lg">{product.name}</CardTitle>
+              <div className="flex gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  title="Sell"
+                  onClick={() => window.location.href = "/bill-generate"}
+                  className="h-8 w-8"
+                >
                   <IndianRupeeIcon className="h-4 w-4" />
                 </Button>
-              </DialogTrigger>
-            </Dialog>
-            <>
-              <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" title="Edit">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <ProductForm
-                    product={product}
-                    onClose={() => setEditDialogOpen(false)}
-                    onActionComplete={()=>{
-                      onActionComplete();
-                      setEditDialogOpen(false);
-                    }}
-                  />
-                </DialogContent>
-              </Dialog>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" title="Delete">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the
-                      product "{product.name}" and remove it from the system.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDelete}
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        "Delete"
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  title="Edit"
+                  onClick={() => setEditDialogOpen(true)}
+                  className="h-8 w-8"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  title="Delete"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  className="h-8 w-8 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <img
+              src={getImageUrl(product.imageUrl)}
+              alt={product.name}
+              className="aspect-square w-full rounded-lg object-cover"
+            />
+            <p className="text-sm text-muted-foreground">{product.description}</p>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                {product.quantity} in stock
+              </span>
+              <span className="text-sm font-medium">
+                Cost: {"\u20B9"}{Number(product.purchasePrice).toFixed(2)}
+              </span>
+            </div>
+            <PricingTable product={product} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Mobile Table View */}
+      {/* Mobile Table View (sm and below) */}
+      <div className="md:hidden">
+        <div className="grid grid-cols-12 p-3 border-b hover:bg-gray-50">
+          {/* Product Name */}
+          <div className="col-span-4 font-medium truncate self-center">
+            {product.name}
+          </div>
+          
+          {/* Description */}
+          <div className="col-span-3 text-sm text-muted-foreground truncate text-right self-center">
+            {product.description}
+          </div>
+          
+          {/* Quantity */}
+          <div className="col-span-2 text-sm text-center self-center">
+            {product.quantity}
+          </div>
+          
+          {/* Cost */}
+          <div className="col-span-2 text-sm text-center self-center">
+            ₹{Number(product.purchasePrice).toFixed(2)}
+          </div>
+
+          {/* Action Buttons Dropdown */}
+          <div className="sm:col-span-1 sm:mt-0 text-right self-center flex">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  title="Edit"
+                  onClick={() => setEditDialogOpen(true)}
+                  className="h-8 w-8"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  title="Delete"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  className="h-8 w-8 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <img
-          src={getImageUrl(product.imageUrl)}
-          alt={product.name}
-          className="aspect-square w-full rounded-lg object-cover"
-        />
-        <p className="text-sm text-muted-foreground">{product.description}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">
-            {product.quantity} in stock
-          </span>
-            <span className="text-sm font-medium">
-              Cost: {"\u20B9"}{Number(product.purchasePrice).toFixed(2)}
-            </span>
-        </div>
-        <PricingTable product={product} />
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <ProductForm
+            product={product}
+            onClose={() => setEditDialogOpen(false)}
+            onActionComplete={() => {
+              onActionComplete();
+              setEditDialogOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{product.name}" from your inventory.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

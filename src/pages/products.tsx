@@ -69,9 +69,9 @@ export default function Products() {
   }
 
   // Filter products based on lowStock state
-  const filteredProducts = lowStock
-    ? products?.filter((product) => product.quantity < 10) // Show only low-stock products
-    : products;
+    const filteredProducts = lowStock
+  ? products?.filter((product) => product.quantity != null && product.quantity < 10)
+  : products;
 
   return (
     <Layout>
@@ -86,10 +86,10 @@ export default function Products() {
           {/* Search Box */}
           <div className="p-6">
             {/* Search Box and Low Stock Toggle */}
-<div className="p-6">
+<div className="p-2">
   <form
     onSubmit={(e) => e.preventDefault()}
-    className="mb-6 flex flex-col gap-3 sm:flex-row" // Stack vertically on small screens, horizontally on larger screens
+    className="mb-6 flex flex-col gap-2 sm:flex-row" // Stack vertically on small screens, horizontally on larger screens
   >
     {/* Search Input */}
     <div className="flex-1 relative">
@@ -155,6 +155,13 @@ export default function Products() {
                   Add your products!
                 </p>
               )}
+<div className="md:hidden grid grid-cols-12 gap-2 p-3 border-b bg-gray-100 font-medium text-sm">
+  <div className="col-span-4 text-left">Product</div>
+  <div className="col-span-3 text-right">Description</div>
+  <div className="col-span-2 text-center">Qty</div>
+  <div className="col-span-2 text-center">Price</div>
+  <div className="col-span-1 text-right">Action</div>
+</div>
               {filteredProducts?.map((product) => (
                 <ProductCard
                   key={product.id}
