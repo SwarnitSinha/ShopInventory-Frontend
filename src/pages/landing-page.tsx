@@ -8,11 +8,14 @@ import { FeatureCard } from '@/components/landingPage/featureCard';
 import { AnimatedCounter } from '../components/landingPage/animatedCounter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Footer } from '@/components/landingPage/footer';
+import { useAuth } from '@/hooks/use-auth';
 
 // Main Landing Page Component
 const LandingPage = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const heroSectionRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -49,16 +52,22 @@ const LandingPage = () => {
             }`}>ShopSage</h1>
           </div>
           <nav>
-            <button 
-              onClick={() => window.location.href = "/auth"}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                isScrolled 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
-            >
-              Login
-            </button>
+          <button 
+  onClick={() => {
+    if (user) {
+      window.location.href = "/dashboard";
+    } else {
+      window.location.href = "/auth";
+    }
+  }}
+  className={`px-4 py-2 rounded-lg transition-colors ${
+    isScrolled 
+      ? 'bg-blue-600 text-white hover:bg-blue-700'
+      : 'bg-white/20 text-white hover:bg-white/30'
+  }`}
+>
+  Login
+</button>
           </nav>
         </div>
       </header>
