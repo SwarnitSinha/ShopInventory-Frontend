@@ -64,8 +64,13 @@ export function SidebarNav({ isOpen, logout }: SidebarNavProps) {
       {/* Content container with z-10 */}
       <div className="relative z-10 h-full flex flex-col">
         <div className="flex h-14 items-center border-b px-4">
-          <h2 className="text-lg font-semibold text-sidebar-foreground">Shop-Sage</h2>
-        </div>
+        <h2 
+    onClick={() => window.location.href = "/"} 
+    className="text-lg font-semibold text-sidebar-foreground cursor-pointer hover:text-opacity-80"
+  >
+    ShopSage
+  </h2>
+          </div>
         <nav className="flex-1 overflow-auto py-2">
           {routes.map((route) => {
             const Icon = route.icon;
