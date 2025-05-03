@@ -45,9 +45,8 @@ export default function Buyers() {
               )}
 
 <div className="md:hidden grid grid-cols-12 gap-2 p-3 border-b bg-gray-100 font-medium text-sm">
-  <div className="col-span-4 text-left">Name</div>
-  <div className="col-span-3 text-left">Type</div>
-  <div className="col-span-3 text-left">Town</div>
+  <div className="col-span-6 text-left">Name</div>
+  <div className="col-span-4 text-right">Town</div>
   <div className="col-span-2 text-center">Action</div>
 </div>
               {buyers?.map((buyer) => (

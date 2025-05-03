@@ -110,17 +110,12 @@ export function BuyerCard({ buyer }: { buyer: Buyer }) {
       <div className="md:hidden">
         <div className="grid grid-cols-12 items-center gap-2 p-3 border-b hover:bg-gray-50">
           {/* Name (40%) */}
-          <div className="col-span-4 font-medium truncate">
+          <div className="col-span-6 font-medium truncate">
             {buyer.name}
           </div>
           
-          {/* Type (20%) */}
-          <div className="col-span-3 text-sm text-muted-foreground text-left">
-            {buyer.type.toUpperCase()}
-          </div>
-          
           {/* Town (20%) */}
-          <div className="col-span-3 text-sm text-muted-foreground truncate text-left">
+          <div className="col-span-4 text-sm text-muted-foreground truncate text-right">
             {buyer.town?.name || '-'}
           </div>
           
