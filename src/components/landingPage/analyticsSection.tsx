@@ -1,7 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 
-const chartColors = ['#6366F1', '#3B82F6', '#EC4899', '#F59E0B'];
+const chartColors = ['#059669', '#10B981', '#34D399', '#6EE7B7'];
 
 const pieData = [
   { name: 'Electronics', value: 400 },
@@ -25,7 +25,10 @@ const barData = [
   { month: 'Dec', sales: 6500 },
 ];
 
+
+
 export function AnalyticsSection() {
+  const chartColors = ['#9CAF88', '#228B22', '#008080', '#6EE7B7'];
   return (
     <section className="py-20 px-4 bg-white">
       <motion.div 
@@ -35,21 +38,15 @@ export function AnalyticsSection() {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-blue-700 mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-green-700 mb-12">
           Business Performance Overview
         </h2>
 
         <div className="flex flex-col lg:flex-row gap-10 justify-center items-center">
           
           {/* Pie Chart */}
-          <motion.div 
-            className="w-full lg:w-1/2 bg-blue-50 p-6 rounded-xl shadow-2xl"
-            initial={{ opacity: 0, x: -100 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1 }}
-            viewport={{ once: true }}
-          >
-            <h3 className="text-xl font-semibold text-blue-600 mb-4 text-center">Category Share</h3>
+          <motion.div className="w-full lg:w-1/2 bg-green-50 p-6 rounded-xl shadow-2xl"> {/* Sage Green background */}
+            <h3 className="text-xl font-semibold text-green-800 mb-4 text-center">Category Share</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -74,20 +71,20 @@ export function AnalyticsSection() {
 
           {/* Bar Chart */}
           <motion.div 
-            className="w-full lg:w-1/2 bg-indigo-50 p-6 rounded-xl shadow-2xl"
+            className="w-full lg:w-1/2 bg-emerald-50 p-6 rounded-xl shadow-2xl"
             initial={{ opacity: 0, x: 100 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 1 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-xl font-semibold text-indigo-600 mb-4 text-center">Monthly Sales</h3>
+            <h3 className="text-xl font-semibold text-emerald-600 mb-4 text-center">Monthly Sales</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={barData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="sales" fill="#6366F1" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="sales" fill="#059669" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </motion.div>
@@ -96,5 +93,3 @@ export function AnalyticsSection() {
     </section>
   );
 };
-
-export default AnalyticsSection;
