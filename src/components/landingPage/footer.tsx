@@ -29,7 +29,7 @@ export function Footer() {
                 href="https://swarnitsinha.github.io/myportfolio/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="hover:text-white transition-colors"
+                className="hover:text-green-400 transition-colors"
             >
                 Contact
             </a>
