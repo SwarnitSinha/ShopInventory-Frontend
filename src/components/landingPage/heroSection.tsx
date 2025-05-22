@@ -24,8 +24,8 @@ export function HeroSection () {
   };
 
   return (
-    <div className="relative h-screen bg-gradient-to-r from-blue-600 to-indigo-800 overflow-hidden">
-      {/* Animated background circles */}
+<div className="relative h-screen bg-gradient-to-r from-green-800 to-teal-800 overflow-hidden"> {/* Forest Green + Deep Teal */}
+{/* Animated background circles */}
       <div className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 20 }).map((_, index) => (
           <motion.div
@@ -64,7 +64,7 @@ export function HeroSection () {
         </motion.h1>
         
         <motion.h2
-          className="text-xl md:text-2xl font-medium mb-6 text-center text-blue-200"
+          className="text-xl md:text-2xl font-medium mb-6 text-center text-green-200"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -76,7 +76,7 @@ export function HeroSection () {
           <AnimatePresence mode="wait">
             <motion.h3
               key={currentIndex}
-              className="text-xl md:text-3xl font-medium text-center text-blue-100"
+              className="text-xl md:text-3xl font-medium text-center text-green-100"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -94,7 +94,7 @@ export function HeroSection () {
           transition={{ delay: 1, duration: 1 }}
         >
           <motion.button 
-            className="bg-white text-blue-800 font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl"
+            className="bg-white text-green-800 font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleGetStarted}

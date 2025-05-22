@@ -56,7 +56,7 @@ export default function TestimonialSection() {
         <div className="md:w-1/3 text-left">
           <p className="text-sm text-gray-500 mb-1">Testimonial</p>
           <h2 className="text-3xl font-bold mb-4">
-            23k+ Customers <br /> gave their <span className="text-purple-600">Feedback</span>
+            23k+ Customers <br /> gave their <span className="text-green-400">Feedback</span>
           </h2>
           <div className="flex gap-2 mt-4">
             <button
@@ -66,9 +66,9 @@ export default function TestimonialSection() {
               ←
             </button>
             <button
-              onClick={next}
-              className="w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-lg"
-            >
+  onClick={next}
+  className="w-10 h-10 bg-green-800 hover:bg-green-900 text-white rounded-full flex items-center justify-center text-lg" // Forest Green
+>
               →
             </button>
           </div>
@@ -84,8 +84,8 @@ export default function TestimonialSection() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
               className={`flex-1 bg-white border ${
-                i === 1 ? "border-purple-500 shadow-xl" : "border-gray-200"
-              } rounded-xl p-6 transition-all`}
+                i === 1 ? "border-green-800 shadow-xl" : "border-gray-200" // Forest Green border
+              } rounded-xl p-6 transition-all`} 
             >
               <div className="flex items-center gap-4 mb-4">
                 <img

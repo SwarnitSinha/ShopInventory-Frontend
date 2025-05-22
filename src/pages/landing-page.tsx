@@ -39,38 +39,34 @@ const LandingPage = () => {
   return (
     <div className="bg-gray-50">
       {/* Navigation Bar */}
-      {/* Updated Navigation Bar */}
       <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white shadow-sm' 
-          : 'bg-transparent shadow-none'
-      } py-4 px-4 md:px-6`}>
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className={`text-2xl font-bold ${
-              isScrolled ? 'text-blue-700' : 'text-white'
-            }`}>ShopSage</h1>
-          </div>
-          <nav>
-          <button 
+  isScrolled 
+    ? 'bg-white shadow-sm' 
+    : 'bg-transparent shadow-none'
+} py-4 px-4 md:px-6`}>
+  <div className="max-w-6xl mx-auto flex justify-between items-center">
+    <div className="flex items-center">
+      <h1 className={`text-2xl font-bold ${
+        isScrolled ? 'text-green-800' : 'text-white' // Forest Green for scrolled state
+      }`}>ShopSage</h1>
+    </div>
+    <nav>
+    <button 
   onClick={() => {
-    if (user) {
-      window.location.href = "/dashboard";
-    } else {
-      window.location.href = "/auth";
-    }
+    if (user) window.location.href = "/dashboard";
+    else window.location.href = "/auth";
   }}
-  className={`px-4 py-2 rounded-lg transition-colors ${
+  className={`px-4 py-2 rounded-lg transition-colors font-semibold text-sm tracking-wide ${
     isScrolled 
-      ? 'bg-blue-600 text-white hover:bg-blue-700'
+      ? 'bg-green-800 text-white hover:bg-green-900' // Forest Green
       : 'bg-white/20 text-white hover:bg-white/30'
   }`}
 >
   Login
 </button>
-          </nav>
-        </div>
-      </header>
+    </nav>
+  </div>
+</header>
 
       {/* HeroSection with spacing for fixed nav */}
       <div ref={heroSectionRef}> {/* Add padding for fixed header */}
@@ -78,7 +74,7 @@ const LandingPage = () => {
       </div>
       
       {/* Mobile Carousel (only visible on small screens) */}
-      <div className="py-6 bg-blue-50 px-4">
+      <div className="py-6 bg-green-50 px-4">
         <div className="max-w-6xl mx-auto">
           <ImageCarousel />
         </div>
@@ -143,7 +139,7 @@ const LandingPage = () => {
       </section>
 
       {/* Stats section with animated counters */}
-      <section className="py-16 md:py-20 px-4 bg-blue-50">
+      <section className="py-16 md:py-20 px-4 bg-green-50">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             className="text-center mb-12 md:mb-16"
@@ -168,8 +164,8 @@ const LandingPage = () => {
       </section>
 
       {/* Interactive CTA section */}
-      <section className="py-16 md:py-20 bg-gradient-to-r from-blue-600 to-indigo-800 px-4">
-        <div className="max-w-4xl mx-auto text-center text-white">
+      <section className="py-16 md:py-20 bg-gradient-to-r from-green-800 to-teal-800 px-4"> {/* Forest Green + Deep Teal */}
+      <div className="max-w-4xl mx-auto text-center text-white">
           <motion.h2 
             className="text-2xl md:text-4xl font-bold mb-4 md:mb-6"
             initial={{ opacity: 0, y: 20 }}
@@ -181,7 +177,7 @@ const LandingPage = () => {
           </motion.h2>
           
           <motion.p 
-            className="text-lg md:text-xl mb-8 md:mb-10 text-blue-100"
+            className="text-lg md:text-xl mb-8 md:mb-10 text-green-100"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -198,8 +194,8 @@ const LandingPage = () => {
             viewport={{ once: true }}
           >
             <motion.button 
-              className="bg-white text-blue-700 py-3 px-8 rounded-full text-lg font-bold shadow"
-              whileHover={{ scale: 1.05, backgroundColor: "#f0f9ff", color: "#1e40af" }}
+              className="bg-white text-green-700 py-3 px-8 rounded-full text-lg font-bold shadow"
+              whileHover={{ scale: 1.05, backgroundColor: "#f0fff4", color: "#046c4e" }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.location.href = "/auth"}
             >
